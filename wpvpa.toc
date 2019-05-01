@@ -1,0 +1,18 @@
+## Interface: 80100
+## X-Min-Interface: 80100
+## Version: 0.1.0
+
+## Title: |cffc41f3bwpvpa
+## Notes: PVP stats
+
+## Author: Artur Parkhisenko (Rgbtur)
+## X-Website: https://github.com/arturparkhisenko/wpvpa
+## X-License: MIT
+## X-Curse-Project-ID: 00000
+## X-WoWI-ID: 00000
+
+## LoadOnDemand: 0
+## DefaultState: enabled
+## SavedVariablesPerCharacter: wpvpa_character_config
+
+wpvpa.lua
