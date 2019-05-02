@@ -1,21 +1,12 @@
--- DOCS ---------------------------------
-
--- TOC, hex color starts right after "cff": ## Title: |cff c41f3b wpvpa|r
--- https://repl.it/repls/KnobbyStupendousAttribute
--- https://wow.gamepedia.com/AddOn_loading_process
--- https://wow.gamepedia.com/Category:FrameXML_documentation
--- https://wow.gamepedia.com/Class_colors
--- https://wowwiki.fandom.com/wiki/Portal:Interface_customization
--- https://wowwiki.fandom.com/wiki/Saving_variables_between_game_sessions
--- https://wowwiki.fandom.com/wiki/Widget_API
--- https://wowwiki.fandom.com/wiki/World_of_Warcraft_API
--- https://wowwiki.fandom.com/wiki/XML_UI
--- https://www.mmo-champion.com/threads/817817-Creating-Your-Own-WoW-Addon
--- https://www.townlong-yak.com/framexml/beta/GlobalStrings.lua
--- https://www.wowhead.com/guide=1949/wow-addon-writing-guide-part-one-how-to-make-your-first-addon
--- The codes {rt#1-8}, codes: 1{star}, 2{circle}, 3{diamond}, 4{triangle}, 5{moon}, 6{square}, 7{cross}, 8{skull}
-
 -- CONSTANTS ----------------------------
+
+--[[
+	Icons, graphics, etc..
+--]]
+local iconHeal = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t"
+local iconDmg = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:22:41|t"
+local iconHonor = "Interface\\PVPFrame\\PVP-Currency-"..UnitFactionGroup('player')
+local iconConquest = "Interface\\PVPFrame\\PVPCurrency-Conquest-"..UnitFactionGroup('player')
 
 local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
 local ADDON_NAME = 'wpvpa'
@@ -75,6 +66,9 @@ local function getStorage(loadedStorage)
   if initialStorage == nil then
     log('new config will be saved.')
     local className, classFile, classID = UnitClass('player')
+
+    NotifyInspect('player') -- for GetInspect_ calls
+
     initialStorage = {
       player = {
         name = GetUnitName('player', false) or 'Unknown',
@@ -84,6 +78,13 @@ local function getStorage(loadedStorage)
         honorLvl = UnitHonorLevel('player') or 1,
         kills = 0,
         ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[3]] = 0}
+      },
+      -- TODO: test dump here
+      test = {
+        unitHonorMax = UnitHonorMax() or 0,
+        honorData = GetInspectHonorData() or 0,
+        ratedBGData = GetInspectRatedBGData() or 0,
+        specialization = GetInspectSpecialization('player') or 0
       }
     }
   end
@@ -139,7 +140,25 @@ SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
   elseif string.lower(command) == 'help' or command == '?' then
     printHelp()
   elseif string.lower(command) == 'dump' then
+    log('1')
     log(dump(getStorage(nil)))
+    updateHonor()
+    updateKills()
+    updateRatings()
+    log('2')
+    log(dump(getStorage(nil)))
+    log('----')
+    log('GetPVPLifetimeStats')
+    log(dump(GetPVPLifetimeStats()))
+    log('textIcon(iconConquest)')
+    log(texIcon(iconConquest))
+    log('textIcon(iconDmg)')
+    log(texIcon(iconDmg))
+    log('textIcon(iconHeal)')
+    log(texIcon(iconHeal))
+    log('textIcon(iconHonor)')
+    log(texIcon(iconHonor))
+    log('end')
   end
 end
 SLASH_WPVPA_SLASHCMD1 = COMMAND
@@ -153,7 +172,7 @@ end
 
 local function updateKills()
   -- https://wow.gamepedia.com/API_GetPVPLifetimeStats
-  local honorableKills, dishonorableKills = GetPVPLifetimeStats()
+  local honorableKills, dishonorableKills, TotalHKs = GetPVPLifetimeStats()
   storage['player']['kills'] = honorableKills or 0
 end
 
