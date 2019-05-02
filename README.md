@@ -8,6 +8,8 @@
 - [ ] It shows PVP Standings for Arena and Battlegrounds
 - [ ] It shows Honor
 - [ ] It shows Honor Rank
+- [ ] It has UI frame
+- [ ] UI frame can be moved
 
 ### VSCode plugins
 
@@ -19,10 +21,11 @@
 ## Notes
 
 - In `.toc`, hex color starts right after `|cff`: `## Title: |cffc41f3bwpvpa`
-- The codes `{rt#1-8}`, codes: `1{star}`, `2{circle}`, `3{diamond}`, `4{triangle}`, `5{moon}`, `6{square}`, `7{cross}`, `8{skull}`
+- The codes `{rt1-8}` example `{rt8}`, codes: `1{star}`, `2{circle}`, `3{diamond}`, `4{triangle}`, `5{moon}`, `6{square}`, `7{cross}`, `8{skull}`
 
 ## URLs
-
+- [Blizzard_APIDocumentation](https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentation)
+- [lua files ptr](https://www.townlong-yak.com/framexml/ptr), example [Blizzard_PVPUI.lua](https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua)
 - [Gethe/wow-api-docs](https://github.com/Gethe/wow-api-docs)
 - [AddOn_loading_process](https://wow.gamepedia.com/AddOn_loading_process)
 - [Category:FrameXML_documentation](https://wow.gamepedia.com/Category:FrameXML_documentation)

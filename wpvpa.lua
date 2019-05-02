@@ -1,17 +1,16 @@
+-- TODO: NO HOISTING IN LUA! Reorder all functions
+
 -- CONSTANTS ----------------------------
 
---[[
-	Icons, graphics, etc..
---]]
-local iconHeal = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t"
-local iconDmg = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:22:41|t"
-local iconHonor = "Interface\\PVPFrame\\PVP-Currency-"..UnitFactionGroup('player')
-local iconConquest = "Interface\\PVPFrame\\PVPCurrency-Conquest-"..UnitFactionGroup('player')
+-- local iconHeal = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t"
+-- local iconDmg = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:22:41|t"
+-- local iconHonor = "Interface\\PVPFrame\\PVP-Currency-"..UnitFactionGroup('player')
+-- local iconConquest = "Interface\\PVPFrame\\PVPCurrency-Conquest-"..UnitFactionGroup('player')
 
 local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
 local ADDON_NAME = 'wpvpa'
 local ADDON_VERSION = GetAddOnMetadata('wpvpa', 'Version')
-local BRACKETS = {'2v2', '3v3', 'RBG'}
+local BRACKETS = {[1] = 'ARENA_2V2', [2]= 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
 local COMMAND = '/' .. ADDON_NAME
 local EVENTS = {
   'ADDON_LOADED',
@@ -66,25 +65,16 @@ local function getStorage(loadedStorage)
   if initialStorage == nil then
     log('new config will be saved.')
     local className, classFile, classID = UnitClass('player')
-
-    NotifyInspect('player') -- for GetInspect_ calls
-
     initialStorage = {
       player = {
         name = GetUnitName('player', false) or 'Unknown',
         realm = GetRealmName() or 'Unknown',
         class = classFile,
         honor = UnitHonor('player') or 0, -- TODO: (it's part of the honor lvl like lvl 15 and 4k from 8k)
-        honorLvl = UnitHonorLevel('player') or 1,
-        kills = 0,
-        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[3]] = 0}
-      },
-      -- TODO: test dump here
-      test = {
-        unitHonorMax = UnitHonorMax() or 0,
-        honorData = GetInspectHonorData() or 0,
-        ratedBGData = GetInspectRatedBGData() or 0,
-        specialization = GetInspectSpecialization('player') or 0
+        honorMax = UnitHonorMax('player') or 1, -- TODO: (it's part of the honor lvl like lvl 15 and 8k total)
+        honorLevel = UnitHonorLevel('player') or 1,
+        kills = GetPVPLifetimeStats() or 0,
+        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0}
       }
     }
   end
@@ -140,25 +130,15 @@ SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
   elseif string.lower(command) == 'help' or command == '?' then
     printHelp()
   elseif string.lower(command) == 'dump' then
-    log('1')
-    log(dump(getStorage(nil)))
-    updateHonor()
-    updateKills()
-    updateRatings()
-    log('2')
-    log(dump(getStorage(nil)))
-    log('----')
-    log('GetPVPLifetimeStats')
-    log(dump(GetPVPLifetimeStats()))
-    log('textIcon(iconConquest)')
-    log(texIcon(iconConquest))
-    log('textIcon(iconDmg)')
-    log(texIcon(iconDmg))
-    log('textIcon(iconHeal)')
-    log(texIcon(iconHeal))
-    log('textIcon(iconHonor)')
-    log(texIcon(iconHonor))
-    log('end')
+    -- TODO: check GetInspectSpecialization
+    -- TODO: check GetInspectRatedBGData
+    -- TODO: check
+    -- log(dump(getStorage(nil)))
+    -- updateHonor()
+    -- updateKills()
+    -- updateRatings()
+    -- log('2')
+    -- log(dump(storage))
   end
 end
 SLASH_WPVPA_SLASHCMD1 = COMMAND
@@ -167,18 +147,44 @@ SLASH_WPVPA_SLASHCMD1 = COMMAND
 
 local function updateHonor()
   storage['player']['honor'] = UnitHonor('player') or 0
-  storage['player']['honorLvl'] = UnitHonorLevel('player') or 1
+  storage['player']['honorMax'] = UnitHonorMax('player') or 1
+  storage['player']['honorLevel'] = UnitHonorLevel('player') or 1
 end
 
 local function updateKills()
-  -- https://wow.gamepedia.com/API_GetPVPLifetimeStats
-  local honorableKills, dishonorableKills, TotalHKs = GetPVPLifetimeStats()
+  local honorableKills = GetPVPLifetimeStats()
   storage['player']['kills'] = honorableKills or 0
 end
 
 local function updateRatings()
   for bracketIndex, bracket in pairs(BRACKETS) do
-    local rating, seasonPlayed, seasonWon, weeklyPlayed, weeklyWon = GetInspectArenaData(bracketIndex)
+    -- https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua
+    local rating, seasonBest, weeklyBest, seasonPlayed, seasonWon, weeklyPlayed, weeklyWon, lastWeeksBest, hasWon, pvpTier, ranking = GetPersonalRatedInfo(bracketIndex)
+    log('bracket: ' .. bracket)
+
+    log('rating')
+    log(rating)
+    log('seasonBest')
+    log(seasonBest)
+    log('weeklyBest')
+    log(weeklyBest)
+    log('seasonPlayed')
+    log(seasonPlayed)
+    log('seasonWon')
+    log(seasonWon)
+    log('weeklyPlayed')
+    log(weeklyPlayed)
+    log('weeklyWon')
+    log(weeklyWon)
+    log('lastWeeksBest')
+    log(lastWeeksBest)
+    log('hasWon')
+    log(hasWon)
+    log('pvpTier')
+    log(pvpTier)
+    log('ranking')
+    log(ranking)
+
     storage['player']['ratings'][bracket] = rating or 0
   end
 end
