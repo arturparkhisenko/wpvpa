@@ -8,6 +8,7 @@
 - [x] It is subscribed for events which will update stats
 - [x] It has UI frame
 - [x] UI frame can be moved
+- [ ] Position of the UI frame could be saved
 - [ ] It shows Kills
 - [ ] It shows PVP Standings for Arena and Battlegrounds
 - [ ] It shows Honor
@@ -24,6 +25,17 @@
 
 - In `.toc`, hex color starts right after `|cff`: `## Title: |cffc41f3bwpvpa`
 - The codes `{rt1-8}` example `{rt8}`, codes: `1{star}`, `2{circle}`, `3{diamond}`, `4{triangle}`, `5{moon}`, `6{square}`, `7{cross}`, `8{skull}`
+
+## Packaging and publishing
+
+- [How to package and publish](https://www.wowinterface.com/forums/showthread.php?t=55801)
+- [BigWigsMods Packager](https://github.com/BigWigsMods/packager)
+
+## Optimizations
+
+- upvalue globals like: `local _G = _G`
+- `for i = 1, #tbl do local v = tbl[ i ]` instead of  `for i, v in ipairs(tbl) do`
+- `format("banana", "%l", strupper, 1)` instead of of `("banana"):format("%l", strupper, 1)`
 
 ## URLs
 

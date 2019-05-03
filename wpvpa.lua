@@ -312,10 +312,11 @@ local function initFrame(frame)
   frame:SetScript('OnDragStart', frame.StartMoving)
   frame:SetScript('OnDragStop', frame.StopMovingOrSizing)
 
-  frame:SetMovable(true)
   frame:EnableMouse(true)
   frame:SetClampedToScreen(true)
+  frame:SetMovable(true)
   frame:SetResizable(false)
+  frame:SetUserPlaced(true)
 
   frame:SetBackdrop(
     {
