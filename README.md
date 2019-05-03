@@ -4,12 +4,14 @@
 
 ## Features and TODO
 
+- [x] It can read all required stats
+- [x] It is subscribed for events which will update stats
+- [x] It has UI frame
+- [x] UI frame can be moved
 - [ ] It shows Kills
 - [ ] It shows PVP Standings for Arena and Battlegrounds
 - [ ] It shows Honor
 - [ ] It shows Honor Level
-- [ ] It has UI frame
-- [ ] UI frame can be moved
 
 ### VSCode plugins
 
