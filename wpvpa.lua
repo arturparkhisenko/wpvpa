@@ -35,8 +35,8 @@ local storage = nil
 -- @usage log('Roses are red...')
 local function log(...)
   local msg = ''
-  for _, v in ipairs(arg) do
-    msg = msg .. tostring(v)
+  for _, part in ipairs {...} do
+    msg = msg .. tostring(part) .. ' '
   end
   DEFAULT_CHAT_FRAME:AddMessage((ADDON_NAME .. ': %s'):format(msg))
 end
@@ -96,9 +96,9 @@ end
 
 local function printHelp()
   log('v' .. ADDON_VERSION .. ', commands:')
-  log(COMMAND .. ' - show addon frame')
-  log('Examples: /wpvpa')
-  log('/wpvpa ? or /wpvpa help - Print this list')
+  log(COMMAND .. ' show - show addon frame')
+  log(COMMAND .. ' hide - hide addon frame')
+  log('Examples: "/wpvpa ?" or "/wpvpa help" - Print this list')
 end
 
 -- STORE ACTIONS ------------------------
@@ -140,6 +140,7 @@ end
 local function updateAchievements()
   for id, name in pairs(ACHIEVEMENTS) do
     local completed = GetAchievementComparisonInfo(id)
+    -- log('id: ',id,'name: ', name, 'completed: ', completed or 'false')
     if completed then
       storage['player']['achievements'][name] = true
     end
@@ -148,8 +149,8 @@ end
 
 -- FUNCTIONS ----------------------------
 
-local function updatePVPStats(event)
-  log('updatePVPStats, event: ', event)
+local function updatePVPStats(eventName)
+  log('updatePVPStats triggered by: ', eventName)
   updateHonor()
   updateKills()
   updateRatings()
@@ -158,6 +159,8 @@ end
 -- EVENTS -------------------------------
 
 local function onEvent(self, event, unit, ...)
+  log('onEvent:', event, 'unit:', unit)
+
   -- IsActiveBattlefieldArena()
   if event == 'HONOR_XP_UPDATE' then
     updatePVPStats(event)
@@ -166,7 +169,7 @@ local function onEvent(self, event, unit, ...)
   elseif event == 'UPDATE_BATTLEFIELD_SCORE' then
     updatePVPStats(event)
   elseif event == 'ACHIEVEMENT_EARNED' then
-    updateAchievements(event)
+    updateAchievements()
   elseif event == 'ZONE_CHANGED_NEW_AREA' then
     updatePVPStats(event)
   elseif event == 'PLAYER_ENTERING_WORLD' then
@@ -174,16 +177,17 @@ local function onEvent(self, event, unit, ...)
   -- elseif event == 'PLAYER_LOGIN' then
   end
 
-  if unit == ADDON_NAME then
-    -- Our saved variables are ready at this point. If there are none, both variables will set to nil.
-    -- This is the first time this addon is loaded.
-    -- arg1 is a file name
-    if event == 'ADDON_LOADED' then
-      storage = getStorage(wpvpa_character_config)
-    elseif event == 'PLAYER_LOGOUT' then
-      -- Save it
-      wpvpa_character_config = storage
-    end
+  -- Our saved variables are ready at this point. If there are none, both variables will set to nil.
+  -- This is the first time this addon is loaded.
+  -- arg1 is a file name
+  if event == 'ADDON_LOADED' and unit == ADDON_NAME then
+    storage = getStorage(wpvpa_character_config)
+    -- update achievements once
+    updateAchievements()
+  end
+  if event == 'PLAYER_LOGOUT' then
+    -- Save it
+    wpvpa_character_config = storage
   end
 end
 
@@ -284,18 +288,21 @@ end
 local function initFrame(frame)
   -- TODO: IsVisible() - Get whether the object is visible on screen (logically (IsShown() and GetParent():IsVisible()));
   -- ~ - not
-  if frame:GetHeight() ~= 0 then
+  if frame and frame:GetHeight() ~= 0 then
     return
   end
 
   -- frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent)
   frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent, 'BasicFrameTemplateWithInset')
 
+  -- assign it to the global
+  uiFrame = frame
+
   -- Frame Config
 
-  frame:SetWidth(512)
-  frame:SetHeight(480)
-  frame:SetAlpha(0.8)
+  frame:SetWidth(200)
+  frame:SetHeight(150)
+  frame:SetAlpha(0.5)
 
   -- frame:SetPoint('CENTER', 650, -100)
   -- frame:SetPoint('CENTER', UIParent, 'CENTER')
@@ -336,15 +343,11 @@ SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
   elseif string.lower(command) == 'help' or command == '?' then
     printHelp()
   elseif string.lower(command) == 'dump' then
-  -- TODO: check GetInspectSpecialization
-  -- TODO: check GetInspectRatedBGData
-  -- TODO: check
-  -- log(dump(getStorage(nil)))
-  -- updateHonor()
-  -- updateKills()
-  -- updateRatings()
-  -- log('2')
-  -- log(dump(storage))
+    -- TODO: check GetInspectSpecialization
+    -- TODO: check GetInspectRatedBGData
+    -- log(dump(getStorage(nil)))
+    updateAchievements()
+    log(dump(storage))
   end
 end
 SLASH_WPVPA_SLASHCMD1 = COMMAND
@@ -355,8 +358,8 @@ local function onLoad()
   log('loaded')
   printHelp()
 
-  -- TODO: uncomment by parts
-  -- initFrame(uiFrame)
+  initFrame(uiFrame)
+  -- TODO: do it!
   -- initContent(uiFrame)
   registerEvents(uiFrame)
   setEventListeners(uiFrame)
