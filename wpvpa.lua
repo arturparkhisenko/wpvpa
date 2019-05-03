@@ -1,5 +1,3 @@
--- TODO: NO HOISTING IN LUA! Reorder all functions
-
 -- CONSTANTS ----------------------------
 
 -- local iconHeal = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t"
@@ -7,11 +5,11 @@
 -- local iconHonor = "Interface\\PVPFrame\\PVP-Currency-"..UnitFactionGroup('player')
 -- local iconConquest = "Interface\\PVPFrame\\PVPCurrency-Conquest-"..UnitFactionGroup('player')
 
-local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
 local ADDON_NAME = 'wpvpa'
 local ADDON_VERSION = GetAddOnMetadata('wpvpa', 'Version')
-local BRACKETS = {[1] = 'ARENA_2V2', [2]= 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
 local COMMAND = '/' .. ADDON_NAME
+local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
+local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
 local EVENTS = {
   'ADDON_LOADED',
   'HONOR_LEVEL_UPDATE',
@@ -33,9 +31,13 @@ local storage = nil
 -- UTILITIES ----------------------------
 
 -- @name log
--- @param msg string
+-- @param arg
 -- @usage log('Roses are red...')
-local function log(msg)
+local function log(...)
+  local msg = ''
+  for _, v in ipairs(arg) do
+    msg = msg .. tostring(v)
+  end
   DEFAULT_CHAT_FRAME:AddMessage((ADDON_NAME .. ': %s'):format(msg))
 end
 
@@ -46,53 +48,9 @@ local function logError(err)
   log('|cffff0000' .. err)
 end
 
--- @name logClass
--- @param msg string
--- @param class string
--- @usage logClass('I feed the fel', 'WARLOCK')
--- local function logClass(msg, class)
---   local color = RAID_CLASS_COLORS[class]['colorStr']
---   color = color.format('|c%s', color)
---   log(color .. msg)
--- end
-
--- STORAGE ------------------------------
--- -- Per-character settings for each individual AddOn.
--- -- WTF\Account\ACCOUNTNAME\RealmName\CharacterName\SavedVariables\AddOnName.lua
-
-local function getStorage(loadedStorage)
-  local initialStorage = loadedStorage
-  if initialStorage == nil then
-    log('new config will be saved.')
-    local className, classFile, classID = UnitClass('player')
-    initialStorage = {
-      player = {
-        name = GetUnitName('player', false) or 'Unknown',
-        realm = GetRealmName() or 'Unknown',
-        class = classFile,
-        honor = UnitHonor('player') or 0, -- TODO: (it's part of the honor lvl like lvl 15 and 4k from 8k)
-        honorMax = UnitHonorMax('player') or 1, -- TODO: (it's part of the honor lvl like lvl 15 and 8k total)
-        honorLevel = UnitHonorLevel('player') or 1,
-        kills = GetPVPLifetimeStats() or 0,
-        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0}
-      }
-    }
-  end
-  return initialStorage
-end
-
-local function loadStorage(event, arg1)
-  -- Our saved variables are ready at this point. If there are none, both variables will set to nil.
-  -- This is the first time this addon is loaded.
-  -- arg1 is a file name
-  if event == 'ADDON_LOADED' and arg1 == 'wpvpa' then
-    storage = getStorage(wpvpa_character_config)
-  elseif event == 'PLAYER_LOGOUT' then
-    -- Save it
-    wpvpa_character_config = storage
-  end
-end
-
+-- @name dump
+-- @param var any
+-- @usage dump(storage)
 local function dump(var)
   if type(var) == 'table' then
     local s = '{ '
@@ -108,6 +66,44 @@ local function dump(var)
   end
 end
 
+-- STORAGE ------------------------------
+-- -- Per-character settings for each individual AddOn.
+-- -- WTF\Account\ACCOUNTNAME\RealmName\CharacterName\SavedVariables\AddOnName.lua
+
+local function getStorage(loadedStorage)
+  local initialStorage = loadedStorage
+  if initialStorage == nil then
+    log('new config will be saved.')
+    local className, classFile, classID = UnitClass('player')
+    initialStorage = {
+      player = {
+        name = GetUnitName('player', false) or 'Unknown',
+        realm = GetRealmName() or 'Unknown',
+        class = classFile,
+        achievements = {},
+        honor = UnitHonor('player') or 0, -- TODO: (it's part of the honor lvl like lvl 15 and 4k from 8k)
+        honorMax = UnitHonorMax('player') or 1, -- TODO: (it's part of the honor lvl like lvl 15 and 8k total)
+        honorLevel = UnitHonorLevel('player') or 1,
+        kills = GetPVPLifetimeStats() or 0,
+        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0}
+      }
+    }
+  end
+  return initialStorage
+end
+
+local function loadStorage(event, arg1)
+  -- Our saved variables are ready at this point. If there are none, both variables will set to nil.
+  -- This is the first time this addon is loaded.
+  -- arg1 is a file name
+  if event == 'ADDON_LOADED' and arg1 == ADDON_NAME then
+    storage = getStorage(wpvpa_character_config)
+  elseif event == 'PLAYER_LOGOUT' then
+    -- Save it
+    wpvpa_character_config = storage
+  end
+end
+
 -- HELP ---------------------------------
 
 local function printHelp()
@@ -116,32 +112,6 @@ local function printHelp()
   log('Examples: /wpvpa')
   log('/wpvpa ? or /wpvpa help - Print this list')
 end
-
--- COMMANDS -----------------------------
-
-SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
-  log(msg)
-  local command, rest = msg:match('^(%S*)%s*(.-)$')
-
-  if string.lower(command) == 'show' then
-    uiFrame:Show()
-  elseif string.lower(command) == 'hide' then
-    uiFrame:Hide()
-  elseif string.lower(command) == 'help' or command == '?' then
-    printHelp()
-  elseif string.lower(command) == 'dump' then
-    -- TODO: check GetInspectSpecialization
-    -- TODO: check GetInspectRatedBGData
-    -- TODO: check
-    -- log(dump(getStorage(nil)))
-    -- updateHonor()
-    -- updateKills()
-    -- updateRatings()
-    -- log('2')
-    -- log(dump(storage))
-  end
-end
-SLASH_WPVPA_SLASHCMD1 = COMMAND
 
 -- STORE ACTIONS ------------------------
 
@@ -159,82 +129,36 @@ end
 local function updateRatings()
   for bracketIndex, bracket in pairs(BRACKETS) do
     -- https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua
-    local rating, seasonBest, weeklyBest, seasonPlayed, seasonWon, weeklyPlayed, weeklyWon, lastWeeksBest, hasWon, pvpTier, ranking = GetPersonalRatedInfo(bracketIndex)
-    log('bracket: ' .. bracket)
-
-    log('rating')
-    log(rating)
-    log('seasonBest')
-    log(seasonBest)
-    log('weeklyBest')
-    log(weeklyBest)
-    log('seasonPlayed')
-    log(seasonPlayed)
-    log('seasonWon')
-    log(seasonWon)
-    log('weeklyPlayed')
-    log(weeklyPlayed)
-    log('weeklyWon')
-    log(weeklyWon)
-    log('lastWeeksBest')
-    log(lastWeeksBest)
-    log('hasWon')
-    log(hasWon)
-    log('pvpTier')
-    log(pvpTier)
-    log('ranking')
-    log(ranking)
-
+    local rating,
+      seasonBest,
+      weeklyBest,
+      seasonPlayed,
+      seasonWon,
+      weeklyPlayed,
+      weeklyWon,
+      lastWeeksBest,
+      hasWon,
+      pvpTier,
+      ranking = GetPersonalRatedInfo(bracketIndex)
     storage['player']['ratings'][bracket] = rating or 0
+
+    log('bracket: ' .. bracket, ', rating: ', rating, ', seasonBest: ', seasonBest)
+    log('weeklyBest: ', weeklyBest, 'seasonPlayed: ', seasonPlayed, ', seasonWon: ', seasonWon)
+    log('weeklyPlayed: ', weeklyPlayed, 'weeklyWon: ', weeklyWon)
+    log('lastWeeksBest: ', lastWeeksBest, ', hasWon: ', hasWon 'pvpTier: ', pvpTier, ', ranking: ', ranking)
   end
 end
 
--- TODO:
--- https://wow.gamepedia.com/API_GetInspectHonorData
--- local function inspect()
---   local canInspect = CanInspect('player', false)
---   if canInspect then
---     local name = UnitName('player')
---     NotifyInspect('player')
-
---     updateRatings()
-
---     local hasHonorData = HasInspectHonorData()
---     if hasHonorData then
---       RequestInspectHonorData()
---       local todayHK, todayHonor, yesterdayHK, yesterdayHonor, lifetimeHK, lifetimeRank = GetInspectHonorData()
---       storage['player']['honor'] = UnitHonor('player') or 0
---       storage['player']['honorLvl'] = UnitHonorLevel('player') or 1
---     end
---   end
--- end
+local function updateAchievements()
+  for id, name in pairs(ACHIEVEMENTS) do
+    local completed = GetAchievementComparisonInfo(id)
+    if completed then
+      storage['player']['achievements'][name] = true
+    end
+  end
+end
 
 -- FUNCTIONS ----------------------------
-
--- local function printAllRatings()
---   for _, bracket in pairs(BRACKETS) do
---     output('player', bracket)
---   end
--- end
-
--- local function cacheAchievements()
---   storage['player']['achievements'] = {}
---   for k, v in pairs(ACHIEVEMENTS) do
---     local completed = GetAchievementComparisonInfo(k)
---     if completed then
---       storage['player']['achievements'][v] = true
---     end
---   end
--- end
-
--- TODO: unneeded?
--- local function calculateBfALevel(honor)
---   local currentLevel = 1
---   if honor > 0 then
---     currentLevel = 1 + math.floor(honor / 8800)
---   end
---   return 'Honor Level ' .. currentLevel
--- end
 
 -- EVENTS -------------------------------
 
@@ -437,16 +361,42 @@ local function initFrame(frame)
   frame:SetBackdropBorderColor(1, 1, 1, 1)
 end
 
+-- COMMANDS -----------------------------
+
+SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
+  log(msg)
+  local command, rest = msg:match('^(%S*)%s*(.-)$')
+  if string.lower(command) == 'show' then
+    uiFrame:Show()
+  elseif string.lower(command) == 'hide' then
+    uiFrame:Hide()
+  elseif string.lower(command) == 'help' or command == '?' then
+    printHelp()
+  elseif string.lower(command) == 'dump' then
+  -- TODO: check GetInspectSpecialization
+  -- TODO: check GetInspectRatedBGData
+  -- TODO: check
+  -- log(dump(getStorage(nil)))
+  -- updateHonor()
+  -- updateKills()
+  -- updateRatings()
+  -- log('2')
+  -- log(dump(storage))
+  end
+end
+SLASH_WPVPA_SLASHCMD1 = COMMAND
+
 -- MAIN ---------------------------------
 
 local function onLoad()
+  log('loaded')
+  printHelp()
+
   -- TODO: uncomment by parts
   -- initFrame(uiFrame)
   -- initContent(uiFrame)
   -- registerEvents(uiFrame)
   -- setEventListeners(uiFrame)
-
-  log('loaded, to get help type /wpvpa')
 
   -- TODO: DEBUG HERE
   -- local debugInfo = getStorage()

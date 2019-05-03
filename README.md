@@ -7,7 +7,7 @@
 - [ ] It shows Kills
 - [ ] It shows PVP Standings for Arena and Battlegrounds
 - [ ] It shows Honor
-- [ ] It shows Honor Rank
+- [ ] It shows Honor Level
 - [ ] It has UI frame
 - [ ] UI frame can be moved
 
@@ -24,6 +24,7 @@
 - The codes `{rt1-8}` example `{rt8}`, codes: `1{star}`, `2{circle}`, `3{diamond}`, `4{triangle}`, `5{moon}`, `6{square}`, `7{cross}`, `8{skull}`
 
 ## URLs
+
 - [Blizzard_APIDocumentation](https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentation)
 - [lua files ptr](https://www.townlong-yak.com/framexml/ptr), example [Blizzard_PVPUI.lua](https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua)
 - [Gethe/wow-api-docs](https://github.com/Gethe/wow-api-docs)
