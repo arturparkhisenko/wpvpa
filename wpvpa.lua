@@ -10,17 +10,17 @@ local ADDON_VERSION = GetAddOnMetadata('wpvpa', 'Version')
 local COMMAND = '/' .. ADDON_NAME
 local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
 local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
+-- Events sorted by how often they are triggered
 local EVENTS = {
-  'ADDON_LOADED',
-  'HONOR_LEVEL_UPDATE',
-  -- 'HONOR_PRESTIGE_UPDATE', -- Not needed anymore?
   'HONOR_XP_UPDATE',
-  'PLAYER_LOGIN', -- Fired when saved variables are loaded
+  'HONOR_LEVEL_UPDATE',
+  'UPDATE_BATTLEFIELD_SCORE',
+  'ACHIEVEMENT_EARNED',
+  'ZONE_CHANGED_NEW_AREA',
+  'PLAYER_ENTERING_WORLD',
+  'PLAYER_LOGIN',
   'PLAYER_LOGOUT', -- Fired when about to log out
-  -- 'UPDATE_BATTLEFIELD_SCORE', -- Not needed because of status event?
-  'UPDATE_BATTLEFIELD_STATUS',
-  'VARIABLES_LOADED',
-  'ZONE_CHANGED_NEW_AREA'
+  'ADDON_LOADED' -- Fired when saved variables are loaded
 }
 
 -- VARIABLES ----------------------------
@@ -92,18 +92,6 @@ local function getStorage(loadedStorage)
   return initialStorage
 end
 
-local function loadStorage(event, arg1)
-  -- Our saved variables are ready at this point. If there are none, both variables will set to nil.
-  -- This is the first time this addon is loaded.
-  -- arg1 is a file name
-  if event == 'ADDON_LOADED' and arg1 == ADDON_NAME then
-    storage = getStorage(wpvpa_character_config)
-  elseif event == 'PLAYER_LOGOUT' then
-    -- Save it
-    wpvpa_character_config = storage
-  end
-end
-
 -- HELP ---------------------------------
 
 local function printHelp()
@@ -160,68 +148,43 @@ end
 
 -- FUNCTIONS ----------------------------
 
+local function updatePVPStats(event)
+  log('updatePVPStats, event: ', event)
+  updateHonor()
+  updateKills()
+  updateRatings()
+end
+
 -- EVENTS -------------------------------
 
 local function onEvent(self, event, unit, ...)
-  -- TODO:
-  -- 'ADDON_LOADED',
-  -- 'HONOR_LEVEL_UPDATE',
-  -- 'HONOR_PRESTIGE_UPDATE',
-  -- 'HONOR_XP_UPDATE',
-  -- 'PLAYER_LOGIN', -- Fired when saved variables are loaded
-  -- 'PLAYER_LOGOUT', -- Fired when about to log out
-  -- -- 'UPDATE_BATTLEFIELD_SCORE',
-  -- 'UPDATE_BATTLEFIELD_STATUS',
-  -- 'VARIABLES_LOADED',
-  -- 'ZONE_CHANGED_NEW_AREA'
-
-  local isArena = IsActiveBattlefieldArena()
-  if event == 'UPDATE_BATTLEFIELD_SCORE' and isArena and GetBattlefieldWinner() ~= nil then
-    matchFinished()
-  elseif event == 'UPDATE_BATTLEFIELD_STATUS' and isArena then
-    storeTempMetadata()
-  elseif event == 'ZONE_CHANGED_NEW_AREA' and not isArena then
-    currentMatch = {}
-  elseif event == 'ADDON_LOADED' and unit == ADDON_NAME then
-    addonLoaded()
+  -- IsActiveBattlefieldArena()
+  if event == 'HONOR_XP_UPDATE' then
+    updatePVPStats(event)
+  elseif event == 'HONOR_LEVEL_UPDATE' then
+    updatePVPStats(event)
+  elseif event == 'UPDATE_BATTLEFIELD_SCORE' then
+    updatePVPStats(event)
+  elseif event == 'ACHIEVEMENT_EARNED' then
+    updateAchievements(event)
+  elseif event == 'ZONE_CHANGED_NEW_AREA' then
+    updatePVPStats(event)
+  elseif event == 'PLAYER_ENTERING_WORLD' then
+    updatePVPStats(event)
+  -- elseif event == 'PLAYER_LOGIN' then
   end
 
-  if event == 'PLAYER_ENTERING_WORLD' and unit == ADDON_NAME then
-    UpdateHonor()
-  end
-  if event == 'HONOR_XP_UPDATE' and unit == ADDON_NAME then
-    UpdateHonor()
-  end
-
-  -- SECOND
-  if event == 'ADDON_LOADED' and ... == 'BagBuddy' then
-    if not BagBuddy_ItemTimes then
-      BagBuddy_ItemTimes = {}
-    end
-    for bag = 0, NUM_BAG_SLOTS do
-      -- Use the optional flag to skip updating times
-      BagBuddy_ScanBag(bag, true)
-    end
-    self:UnregisterEvent('ADDON_LOADED')
-    self:RegisterEvent('BAG_UPDATE')
-  elseif event == 'BAG_UPDATE' then
-    local bag = ...
-    if bag >= 0 then
-      BagBuddy_ScanBag(bag)
-      if BagBuddy:IsVisible() then
-        BagBuddy_Update()
-      end
+  if unit == ADDON_NAME then
+    -- Our saved variables are ready at this point. If there are none, both variables will set to nil.
+    -- This is the first time this addon is loaded.
+    -- arg1 is a file name
+    if event == 'ADDON_LOADED' then
+      storage = getStorage(wpvpa_character_config)
+    elseif event == 'PLAYER_LOGOUT' then
+      -- Save it
+      wpvpa_character_config = storage
     end
   end
-
-  -- if event == 'VARIABLES_LOADED' then
-  --   -- Make sure defaults are set
-  --   if not ZigiPrestigeDB then
-  --     ZigiPrestigeDB = {}
-  --   end
-  -- else
-  --   updateHonor()
-  -- end
 end
 
 -- UI and FRAME -------------------------
@@ -395,8 +358,8 @@ local function onLoad()
   -- TODO: uncomment by parts
   -- initFrame(uiFrame)
   -- initContent(uiFrame)
-  -- registerEvents(uiFrame)
-  -- setEventListeners(uiFrame)
+  registerEvents(uiFrame)
+  setEventListeners(uiFrame)
 
   -- TODO: DEBUG HERE
   -- local debugInfo = getStorage()
