@@ -1,3 +1,7 @@
+-- UPVALUES -----------------------------
+local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
+local GetAddOnMetadata = GetAddOnMetadata
+
 -- CONSTANTS ----------------------------
 
 -- local iconHeal = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t"
@@ -182,7 +186,7 @@ local function onEvent(self, event, unit, ...)
   -- arg1 is a file name
   if event == 'ADDON_LOADED' and unit == ADDON_NAME then
     storage = getStorage(wpvpa_character_config)
-    -- update achievements once
+    -- onInit update achievements once
     updateAchievements()
   end
   if event == 'PLAYER_LOGOUT' then
@@ -190,11 +194,6 @@ local function onEvent(self, event, unit, ...)
     wpvpa_character_config = storage
   end
 end
-
--- UI and FRAME -------------------------
-
--- TODO: Update of the values in the table will be reflected in UI? or SetText is required?
--- local function render() end
 
 local function registerEvents(frame)
   for _, eventName in pairs(EVENTS) do
@@ -206,18 +205,36 @@ local function setEventListeners(frame)
   frame:SetScript('OnEvent', onEvent)
 end
 
+-- UI and FRAME -------------------------
+
+-- TODO: Update of the values in the table will be reflected in UI? or SetText is required?
+local function render(frame)
+  frame.Title:SetText(ADDON_NAME .. ' {skull} Stats for ' .. storage['player']['name'])
+  frame.killsAmountTitle:SetText(HONORABLE_KILLS) -- HONORABLE_KILLS = "Honorable Kills";
+  frame.killsAmount:SetText(storage['player']['kills'])
+  frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
+  frame.honorAmountTitle:SetText(HONOR_POINTS)
+  frame.honorAmount:SetText(storage['player']['honor'])
+  frame.honorLevelTitle:SetText(HONOR_LEVEL_LABEL) -- HONOR_LEVEL_LABEL = "Honor Level %d";, LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
+  frame.honorLevel:SetText(storage['player']['honorLvl'])
+  frame.ratingsArenaTitle:SetText(PVP_LABEL_ARENA) -- PVP_LABEL_ARENA = "ARENA:";, -- ARENA = "Arena";
+  frame.ratingsArena2v2Title:SetText(ARENA_2V2)
+  frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
+  frame.ratingsArena3v3Title:SetText(ARENA_3V3)
+  frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
+
+end
+
 local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
   frame.Title:SetPoint('TOP', 0, -2)
-  frame.Title:SetText(ADDON_NAME .. ' {skull} Stats for ' .. storage['player']['name'])
 
   -- Kills
   -- -- Kills Amount Title
   frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameFontNormal')
   frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
   frame.killsAmountTitle:SetPoint('TOP', 0, -2)
-  frame.killsAmountTitle:SetText(HONORABLE_KILLS) -- HONORABLE_KILLS = "Honorable Kills";
   -- -- Kills Amount
   frame.killsAmount = frame:CreateFontString('killsAmount', 'ARTWORK', 'QuestFont_Shadow_Huge')
   frame.killsAmount:SetAllPoints(true)
@@ -226,55 +243,44 @@ local function initContent(frame)
   frame.killsAmount:SetJustifyH('LEFT')
   frame.killsAmount:SetJustifyV('TOP')
   frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
-  frame.killsAmount:SetText(storage['player']['kills'])
 
   -- Honor
   -- -- Honor Title
   frame.honorTitle = frame:CreateFontString('honorTitle', 'HIGHLIGHT', 'GameFontNormal')
   frame.honorTitle:SetPoint('LEFT', 1, 2)
-  frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
 
   -- -- Honor Amount Title
   frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'HIGHLIGHT', 'GameFontNormal')
   frame.honorAmountTitle:SetPoint('LEFT', 2, 3)
-  frame.honorAmountTitle:SetText(HONOR_POINTS)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
   frame.honorAmount:SetPoint('LEFT', 3, 4)
-  frame.honorAmount:SetText(storage['player']['honor'])
 
   -- -- Honor Level Title
   frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'HIGHLIGHT', 'GameFontNormal')
   frame.honorLevelTitle:SetPoint('LEFT', 4, 5)
-  frame.honorLevelTitle:SetText(HONOR_LEVEL_LABEL) -- HONOR_LEVEL_LABEL = "Honor Level %d";, LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
   -- -- Honor Level
   frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
   frame.honorLevel:SetPoint('LEFT', 5, 6)
-  frame.honorLevel:SetText(storage['player']['honorLvl'])
 
   -- Ratings
   -- -- Ratings Arena Title
   frame.ratingsArenaTitle = frame:CreateFontString('ratingsArenaTitle', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArenaTitle:SetPoint('LEFT', 4, 14)
-  frame.ratingsArenaTitle:SetText(PVP_LABEL_ARENA) -- PVP_LABEL_ARENA = "ARENA:";, -- ARENA = "Arena";
 
   -- -- Ratings Arena 2v2 Title
   frame.ratingsArena2v2Title = frame:CreateFontString('ratingsArena2v2Title', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArena2v2Title:SetPoint('LEFT', 5, 15)
-  frame.ratingsArena2v2Title:SetText(ARENA_2V2)
   -- -- Ratings Arena 2v2 Amount
   frame.ratingsArena2v2Amount = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArena2v2Amount:SetPoint('LEFT', 6, 16)
-  frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
 
   -- -- Ratings Arena 3v3 Title
   frame.ratingsArena3v3Title = frame:CreateFontString('ratingsArena3v3Title', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArena3v3Title:SetPoint('LEFT', 7, 17)
-  frame.ratingsArena3v3Title:SetText(ARENA_3V3)
   -- -- Ratings Arena 3v3 Amount
   frame.ratingsArena3v3Amount = frame:CreateFontString('ratingsArena3v3Amount', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArena3v3Amount:SetPoint('LEFT', 8, 18)
-  frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
 
   -- -- TODO: ARENA_BATTLES_2V2 = "2v2 Arena Battles";
   -- -- TODO: ARENA_BATTLES_3V3 = "3v3 Arena Battles";
@@ -294,9 +300,6 @@ local function initFrame(frame)
 
   -- frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent)
   frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent, 'BasicFrameTemplateWithInset')
-
-  -- assign it to the global
-  uiFrame = frame
 
   -- Frame Config
 
@@ -330,25 +333,27 @@ local function initFrame(frame)
   )
   frame:SetBackdropColor(0, 0, 0, .8)
   frame:SetBackdropBorderColor(1, 1, 1, 1)
+
+  return frame
 end
 
 -- COMMANDS -----------------------------
 
 SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
   log(msg)
-  local command, rest = msg:match('^(%S*)%s*(.-)$')
-  if string.lower(command) == 'show' then
+  local command = string.lower(msg:match('^(%S*)%s*(.-)$'))
+  if command == 'show' then
     uiFrame:Show()
-  elseif string.lower(command) == 'hide' then
+  elseif command == 'hide' then
     uiFrame:Hide()
-  elseif string.lower(command) == 'help' or command == '?' then
+  elseif command == 'help' or command == '?' then
     printHelp()
-  elseif string.lower(command) == 'dump' then
+  elseif command == 'dump' then
     -- TODO: check GetInspectSpecialization
     -- TODO: check GetInspectRatedBGData
-    -- log(dump(getStorage(nil)))
-    updateAchievements()
     log(dump(storage))
+    initContent(uiFrame)
+    render(uiFrame)
   end
 end
 SLASH_WPVPA_SLASHCMD1 = COMMAND
@@ -358,18 +363,10 @@ SLASH_WPVPA_SLASHCMD1 = COMMAND
 local function onLoad()
   log('loaded')
   printHelp()
-
-  initFrame(uiFrame)
-  -- TODO: do it!
-  -- initContent(uiFrame)
+  uiFrame = initFrame(uiFrame)
+  -- initContent(uiFrame) -- TODO: do it!
   registerEvents(uiFrame)
   setEventListeners(uiFrame)
-
-  -- TODO: DEBUG HERE
-  -- local debugInfo = getStorage()
-  -- log(debugInfo.player.name)
-  -- logError(debugInfo.player.class)
 end
 
--- LAST CALL ----------------------------
 onLoad()
