@@ -1,6 +1,7 @@
 -- UPVALUES -----------------------------
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local GetAddOnMetadata = GetAddOnMetadata
+local GetPersonalRatedInfo = GetPersonalRatedInfo
 
 -- CONSTANTS ----------------------------
 
@@ -12,6 +13,8 @@ local GetAddOnMetadata = GetAddOnMetadata
 local ADDON_NAME = 'wpvpa'
 local ADDON_VERSION = GetAddOnMetadata('wpvpa', 'Version')
 local COMMAND = '/' .. ADDON_NAME
+local LOG_PREFIX = ADDON_NAME .. ': %s'
+
 local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
 local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
 -- Events sorted by how often they are triggered
@@ -42,14 +45,7 @@ local function log(...)
   for _, part in ipairs {...} do
     msg = msg .. tostring(part) .. ' '
   end
-  DEFAULT_CHAT_FRAME:AddMessage((ADDON_NAME .. ': %s'):format(msg))
-end
-
--- @name logError
--- @param err string
--- @usage logError('Oh no!')
-local function logError(err)
-  log('|cffff0000' .. err)
+  DEFAULT_CHAT_FRAME:AddMessage(string.format(LOG_PREFIX, msg))
 end
 
 -- @name dump
@@ -121,23 +117,19 @@ end
 local function updateRatings()
   for bracketIndex, bracket in pairs(BRACKETS) do
     -- https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua
-    local rating,
-      seasonBest,
-      weeklyBest,
-      seasonPlayed,
-      seasonWon,
-      weeklyPlayed,
-      weeklyWon,
-      lastWeeksBest,
-      hasWon,
-      pvpTier,
-      ranking = GetPersonalRatedInfo(bracketIndex)
+    local rating = GetPersonalRatedInfo(bracketIndex)
+    -- local rating,
+    --   seasonBest,
+    --   weeklyBest,
+    --   seasonPlayed,
+    --   seasonWon,
+    --   weeklyPlayed,
+    --   weeklyWon,
+    --   lastWeeksBest,
+    --   hasWon,
+    --   pvpTier,
+    --   ranking = GetPersonalRatedInfo(bracketIndex)
     storage['player']['ratings'][bracket] = rating or 0
-
-    log('bracket: ' .. bracket, ', rating: ', rating, ', seasonBest: ', seasonBest)
-    log('weeklyBest: ', weeklyBest, 'seasonPlayed: ', seasonPlayed, ', seasonWon: ', seasonWon)
-    log('weeklyPlayed: ', weeklyPlayed, 'weeklyWon: ', weeklyWon)
-    log('lastWeeksBest: ', lastWeeksBest, ', hasWon: ', hasWon 'pvpTier: ', pvpTier, ', ranking: ', ranking)
   end
 end
 
@@ -207,9 +199,7 @@ end
 
 -- UI and FRAME -------------------------
 
--- TODO: Update of the values in the table will be reflected in UI? or SetText is required?
 local function render(frame)
-  frame.Title:SetText(ADDON_NAME .. ' {skull} Stats for ' .. storage['player']['name'])
   frame.killsAmountTitle:SetText(HONORABLE_KILLS) -- HONORABLE_KILLS = "Honorable Kills";
   frame.killsAmount:SetText(storage['player']['kills'])
   frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
@@ -222,13 +212,15 @@ local function render(frame)
   frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
   frame.ratingsArena3v3Title:SetText(ARENA_3V3)
   frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
-
 end
 
+-- ofsx (negative values will move obj left, positive values will move obj right), defaults to 0 if not specified.
+-- ofsy (negative values will move obj down, positive values will move obj up), defaults to 0 if not specified.
 local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
   frame.Title:SetPoint('TOP', 0, -2)
+  frame.Title:SetText(ADDON_NAME .. ' {skull} Stats for ' .. storage['player']['name'])
 
   -- Kills
   -- -- Kills Amount Title
@@ -304,12 +296,12 @@ local function initFrame(frame)
   -- Frame Config
 
   frame:SetWidth(200)
-  frame:SetHeight(150)
-  frame:SetAlpha(0.5)
+  frame:SetHeight(400)
+  frame:SetAlpha(0.7)
 
   -- frame:SetPoint('CENTER', 650, -100)
   -- frame:SetPoint('CENTER', UIParent, 'CENTER')
-  frame:SetPoint('CENTER')
+  -- frame:SetPoint('CENTER')
 
   frame:RegisterForDrag('LeftButton', 'RightButton')
   frame:SetScript('OnDragStart', frame.StartMoving)
@@ -361,7 +353,7 @@ SLASH_WPVPA_SLASHCMD1 = COMMAND
 -- MAIN ---------------------------------
 
 local function onLoad()
-  log('loaded')
+  log('|cffc01300loaded')
   printHelp()
   uiFrame = initFrame(uiFrame)
   -- initContent(uiFrame) -- TODO: do it!

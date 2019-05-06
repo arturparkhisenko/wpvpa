@@ -33,9 +33,9 @@
 
 ## Optimizations
 
-- upvalue globals like: `local _G = _G`
+- upvalue globals like: `local _G = G`
 - `for i = 1, #tbl do local v = tbl[ i ]` instead of  `for i, v in ipairs(tbl) do`
-- `format("banana", "%l", strupper, 1)` instead of of `("banana"):format("%l", strupper, 1)`
+- `string.format('wpvpa: %s', 'hello')` instead of of `("wpvpa: %s"):format('hello')`
 
 ## URLs
 
