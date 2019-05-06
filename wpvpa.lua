@@ -205,8 +205,8 @@ local function render(frame)
   frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
   frame.honorAmountTitle:SetText(HONOR_POINTS)
   frame.honorAmount:SetText(storage['player']['honor'])
-  frame.honorLevelTitle:SetText(HONOR_LEVEL_LABEL) -- HONOR_LEVEL_LABEL = "Honor Level %d";, LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
-  frame.honorLevel:SetText(storage['player']['honorLvl'])
+  frame.honorLevelTitle:SetText(LFG_LIST_HONOR_LEVEL_INSTR_SHORT) -- LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
+  frame.honorLevel:SetText(storage['player']['honorLevel'])
   frame.ratingsArenaTitle:SetText(PVP_LABEL_ARENA) -- PVP_LABEL_ARENA = "ARENA:";, -- ARENA = "Arena";
   frame.ratingsArena2v2Title:SetText(ARENA_2V2)
   frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
@@ -219,60 +219,61 @@ end
 local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
-  frame.Title:SetPoint('TOP', 0, -2)
-  frame.Title:SetText(ADDON_NAME .. ' {skull} Stats for ' .. storage['player']['name'])
+  frame.Title:SetPoint('TOP', 0, 0)
+  frame.Title:SetText(ADDON_NAME .. ' Stats')
 
   -- Kills
   -- -- Kills Amount Title
   frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameFontNormal')
   frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
-  frame.killsAmountTitle:SetPoint('TOP', 0, -2)
+  frame.killsAmountTitle:SetPoint('LEFT', 0, -10)
   -- -- Kills Amount
   frame.killsAmount = frame:CreateFontString('killsAmount', 'ARTWORK', 'QuestFont_Shadow_Huge')
   frame.killsAmount:SetAllPoints(true)
   frame.killsAmount:SetFont('Fonts\\ARIALN.ttf', 13, 'OUTLINE')
-  frame.killsAmount:SetPoint('CENTER', 0, 0)
   frame.killsAmount:SetJustifyH('LEFT')
   frame.killsAmount:SetJustifyV('TOP')
   frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
+  frame.killsAmount:SetPoint('LEFT', 0, -20)
 
   -- Honor
   -- -- Honor Title
-  frame.honorTitle = frame:CreateFontString('honorTitle', 'HIGHLIGHT', 'GameFontNormal')
-  frame.honorTitle:SetPoint('LEFT', 1, 2)
+  -- TODO: learn about this 2d argument 'HIGHLIGHT' and 'OVERLAY'
+  frame.honorTitle = frame:CreateFontString('honorTitle', 'OVERLAY', 'GameFontNormal')
+  frame.honorTitle:SetPoint('LEFT', 0, -40)
 
   -- -- Honor Amount Title
-  frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'HIGHLIGHT', 'GameFontNormal')
-  frame.honorAmountTitle:SetPoint('LEFT', 2, 3)
+  frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameFontNormal')
+  frame.honorAmountTitle:SetPoint('LEFT', 0, -60)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmount:SetPoint('LEFT', 3, 4)
+  frame.honorAmount:SetPoint('LEFT', 45, -60)
 
   -- -- Honor Level Title
-  frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'HIGHLIGHT', 'GameFontNormal')
-  frame.honorLevelTitle:SetPoint('LEFT', 4, 5)
+  frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'OVERLAY', 'GameFontNormal')
+  frame.honorLevelTitle:SetPoint('LEFT', 0, -75)
   -- -- Honor Level
   frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
-  frame.honorLevel:SetPoint('LEFT', 5, 6)
+  frame.honorLevel:SetPoint('LEFT', 80, -75)
 
   -- Ratings
   -- -- Ratings Arena Title
   frame.ratingsArenaTitle = frame:CreateFontString('ratingsArenaTitle', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArenaTitle:SetPoint('LEFT', 4, 14)
+  frame.ratingsArenaTitle:SetPoint('LEFT', 0, -85)
 
   -- -- Ratings Arena 2v2 Title
   frame.ratingsArena2v2Title = frame:CreateFontString('ratingsArena2v2Title', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena2v2Title:SetPoint('LEFT', 5, 15)
+  frame.ratingsArena2v2Title:SetPoint('LEFT', 0, -100)
   -- -- Ratings Arena 2v2 Amount
   frame.ratingsArena2v2Amount = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena2v2Amount:SetPoint('LEFT', 6, 16)
+  frame.ratingsArena2v2Amount:SetPoint('LEFT', 30, -100)
 
   -- -- Ratings Arena 3v3 Title
   frame.ratingsArena3v3Title = frame:CreateFontString('ratingsArena3v3Title', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena3v3Title:SetPoint('LEFT', 7, 17)
+  frame.ratingsArena3v3Title:SetPoint('LEFT', 0, -115)
   -- -- Ratings Arena 3v3 Amount
   frame.ratingsArena3v3Amount = frame:CreateFontString('ratingsArena3v3Amount', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena3v3Amount:SetPoint('LEFT', 8, 18)
+  frame.ratingsArena3v3Amount:SetPoint('LEFT', 30, -115)
 
   -- -- TODO: ARENA_BATTLES_2V2 = "2v2 Arena Battles";
   -- -- TODO: ARENA_BATTLES_3V3 = "3v3 Arena Battles";
@@ -295,13 +296,11 @@ local function initFrame(frame)
 
   -- Frame Config
 
-  frame:SetWidth(200)
-  frame:SetHeight(400)
+  frame:SetWidth(160)
+  frame:SetHeight(300)
   frame:SetAlpha(0.7)
 
-  -- frame:SetPoint('CENTER', 650, -100)
-  -- frame:SetPoint('CENTER', UIParent, 'CENTER')
-  -- frame:SetPoint('CENTER')
+  frame:SetPoint('CENTER', -500, -300)
 
   frame:RegisterForDrag('LeftButton', 'RightButton')
   frame:SetScript('OnDragStart', frame.StartMoving)
