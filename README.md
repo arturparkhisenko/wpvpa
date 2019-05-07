@@ -10,9 +10,10 @@
 - [x] UI frame can be moved
 - [ ] Position of the UI frame could be saved
 - [ ] It shows Kills
-- [ ] It shows PVP Standings for Arena and Battlegrounds
-- [ ] It shows Honor
-- [ ] It shows Honor Level
+- [x] It shows PVP Standings for Arena
+- [ ] It shows PVP Standings for Rated Battlegrounds
+- [x] It shows Honor
+- [x] It shows Honor Level
 
 ### VSCode plugins
 
