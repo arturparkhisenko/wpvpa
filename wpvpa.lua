@@ -200,17 +200,10 @@ end
 -- UI and FRAME -------------------------
 
 local function render(frame)
-  frame.killsAmountTitle:SetText(HONORABLE_KILLS) -- HONORABLE_KILLS = "Honorable Kills";
   frame.killsAmount:SetText(storage['player']['kills'])
-  frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
-  frame.honorAmountTitle:SetText(HONOR_POINTS)
   frame.honorAmount:SetText(storage['player']['honor'])
-  frame.honorLevelTitle:SetText(LFG_LIST_HONOR_LEVEL_INSTR_SHORT) -- LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
   frame.honorLevel:SetText(storage['player']['honorLevel'])
-  frame.ratingsArenaTitle:SetText(PVP_LABEL_ARENA) -- PVP_LABEL_ARENA = "ARENA:";, -- ARENA = "Arena";
-  frame.ratingsArena2v2Title:SetText(ARENA_2V2)
   frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
-  frame.ratingsArena3v3Title:SetText(ARENA_3V3)
   frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
 end
 
@@ -219,7 +212,7 @@ end
 local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
-  frame.Title:SetPoint('TOP', 0, 0)
+  frame.Title:SetPoint('TOP', 0, -7)
   frame.Title:SetText(ADDON_NAME .. ' Stats')
 
   -- Kills
@@ -227,13 +220,10 @@ local function initContent(frame)
   frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameFontNormal')
   frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
   frame.killsAmountTitle:SetPoint('LEFT', 0, -10)
+  frame.killsAmountTitle:SetText(HONORABLE_KILLS) -- HONORABLE_KILLS = "Honorable Kills";
   -- -- Kills Amount
-  frame.killsAmount = frame:CreateFontString('killsAmount', 'ARTWORK', 'QuestFont_Shadow_Huge')
-  frame.killsAmount:SetAllPoints(true)
-  frame.killsAmount:SetFont('Fonts\\ARIALN.ttf', 13, 'OUTLINE')
-  frame.killsAmount:SetJustifyH('LEFT')
-  frame.killsAmount:SetJustifyV('TOP')
-  frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
+  frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'QuestFont_Shadow_Huge')
+  -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
   frame.killsAmount:SetPoint('LEFT', 0, -20)
 
   -- Honor
@@ -241,10 +231,12 @@ local function initContent(frame)
   -- TODO: learn about this 2d argument 'HIGHLIGHT' and 'OVERLAY'
   frame.honorTitle = frame:CreateFontString('honorTitle', 'OVERLAY', 'GameFontNormal')
   frame.honorTitle:SetPoint('LEFT', 0, -40)
+  frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
 
   -- -- Honor Amount Title
   frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameFontNormal')
   frame.honorAmountTitle:SetPoint('LEFT', 0, -60)
+  frame.honorAmountTitle:SetText(HONOR_POINTS)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
   frame.honorAmount:SetPoint('LEFT', 45, -60)
@@ -252,6 +244,7 @@ local function initContent(frame)
   -- -- Honor Level Title
   frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'OVERLAY', 'GameFontNormal')
   frame.honorLevelTitle:SetPoint('LEFT', 0, -75)
+  frame.honorLevelTitle:SetText(LFG_LIST_HONOR_LEVEL_INSTR_SHORT) -- LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
   -- -- Honor Level
   frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
   frame.honorLevel:SetPoint('LEFT', 80, -75)
@@ -260,10 +253,12 @@ local function initContent(frame)
   -- -- Ratings Arena Title
   frame.ratingsArenaTitle = frame:CreateFontString('ratingsArenaTitle', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArenaTitle:SetPoint('LEFT', 0, -85)
+  frame.ratingsArenaTitle:SetText(PVP_LABEL_ARENA) -- PVP_LABEL_ARENA = "ARENA:";, -- ARENA = "Arena";
 
   -- -- Ratings Arena 2v2 Title
   frame.ratingsArena2v2Title = frame:CreateFontString('ratingsArena2v2Title', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArena2v2Title:SetPoint('LEFT', 0, -100)
+  frame.ratingsArena2v2Title:SetText(ARENA_2V2)
   -- -- Ratings Arena 2v2 Amount
   frame.ratingsArena2v2Amount = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArena2v2Amount:SetPoint('LEFT', 30, -100)
@@ -271,6 +266,7 @@ local function initContent(frame)
   -- -- Ratings Arena 3v3 Title
   frame.ratingsArena3v3Title = frame:CreateFontString('ratingsArena3v3Title', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArena3v3Title:SetPoint('LEFT', 0, -115)
+  frame.ratingsArena3v3Title:SetText(ARENA_3V3)
   -- -- Ratings Arena 3v3 Amount
   frame.ratingsArena3v3Amount = frame:CreateFontString('ratingsArena3v3Amount', 'OVERLAY', 'GameFontNormal')
   frame.ratingsArena3v3Amount:SetPoint('LEFT', 30, -115)
@@ -297,7 +293,7 @@ local function initFrame(frame)
   -- Frame Config
 
   frame:SetWidth(160)
-  frame:SetHeight(300)
+  frame:SetHeight(150)
   frame:SetAlpha(0.7)
 
   frame:SetPoint('CENTER', -500, -300)
