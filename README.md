@@ -9,13 +9,18 @@
 - [x] It can read all required stats
 - [x] It is subscribed for events which will update stats
 - [x] It has UI frame
-- [x] UI frame can be moved
-- [x] Position of the UI frame could be saved
+- [x] Its UI frame can be moved
+- [x] Its UI frame Position could be saved
 - [x] It shows Kills
 - [x] It shows Honor
 - [x] It shows Honor Level
 - [x] It shows PVP Standings for Arena
 - [x] It shows PVP Standings for Rated Battlegrounds
+- [ ] It has a curseforge specific custom `pkgmeta.yaml` file
+- [ ] It shows PVP ranks achievements icons (example: AJ)
+- [ ] It has multiple styles/themes (example: tooltip)
+- [ ] It has settings (example: what to show, size)
+- [ ] It has a multi-language support
 
 ### VSCode plugins
 
