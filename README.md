@@ -8,12 +8,12 @@
 - [x] It is subscribed for events which will update stats
 - [x] It has UI frame
 - [x] UI frame can be moved
-- [ ] Position of the UI frame could be saved
-- [ ] It shows Kills
-- [x] It shows PVP Standings for Arena
-- [ ] It shows PVP Standings for Rated Battlegrounds
+- [x] Position of the UI frame could be saved
+- [x] It shows Kills
 - [x] It shows Honor
 - [x] It shows Honor Level
+- [x] It shows PVP Standings for Arena
+- [ ] It shows PVP Standings for Rated Battlegrounds
 
 ### VSCode plugins
 
@@ -42,6 +42,7 @@
 
 - [Blizzard_APIDocumentation](https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentation)
 - [lua files ptr](https://www.townlong-yak.com/framexml/ptr), example [Blizzard_PVPUI.lua](https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua)
+- [FontStyles](https://www.townlong-yak.com/framexml/29701/SharedFontStyles.xml)
 - [Gethe/wow-api-docs](https://github.com/Gethe/wow-api-docs)
 - [AddOn_loading_process](https://wow.gamepedia.com/AddOn_loading_process)
 - [Category:FrameXML_documentation](https://wow.gamepedia.com/Category:FrameXML_documentation)
