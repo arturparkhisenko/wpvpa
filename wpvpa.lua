@@ -1,7 +1,15 @@
 -- UPVALUES -----------------------------
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
+local GetAchievementComparisonInfo = GetAchievementComparisonInfo
 local GetAddOnMetadata = GetAddOnMetadata
 local GetPersonalRatedInfo = GetPersonalRatedInfo
+local GetPVPLifetimeStats = GetPVPLifetimeStats
+local GetRealmName = GetRealmName
+local GetUnitName = GetUnitName
+local UnitClass = UnitClass
+local UnitHonor = UnitHonor
+local UnitHonorLevel = UnitHonorLevel
+local UnitHonorMax = UnitHonorMax
 
 -- CONSTANTS ----------------------------
 
@@ -13,6 +21,7 @@ local GetPersonalRatedInfo = GetPersonalRatedInfo
 local ADDON_NAME = 'wpvpa'
 local ADDON_VERSION = GetAddOnMetadata('wpvpa', 'Version')
 local COMMAND = '/' .. ADDON_NAME
+local DEBUG = nil
 local LOG_PREFIX = ADDON_NAME .. ': %s'
 
 local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
@@ -74,16 +83,18 @@ end
 local function getStorage(loadedStorage)
   local initialStorage = loadedStorage
   if initialStorage == nil then
-    log('new config will be saved.')
-    local className, classFile, classID = UnitClass('player')
+    if DEBUG then
+      log('new config will be saved.')
+    end
+    local className, classFile = UnitClass('player')
     initialStorage = {
       player = {
         name = GetUnitName('player', false) or 'Unknown',
         realm = GetRealmName() or 'Unknown',
         class = classFile,
         achievements = {},
-        honor = UnitHonor('player') or 0, -- TODO: (it's part of the honor lvl like lvl 15 and 4k from 8k)
-        honorMax = UnitHonorMax('player') or 1, -- TODO: (it's part of the honor lvl like lvl 15 and 8k total)
+        honor = UnitHonor('player') or 0,
+        honorMax = UnitHonorMax('player') or 1,
         honorLevel = UnitHonorLevel('player') or 1,
         kills = GetPVPLifetimeStats() or 0,
         ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0}
@@ -137,7 +148,9 @@ end
 local function updateAchievements()
   for id, name in pairs(ACHIEVEMENTS) do
     local completed = GetAchievementComparisonInfo(id)
-    -- log('id: ',id,'name: ', name, 'completed: ', completed or 'false')
+    if DEBUG then
+      log('id: ', id, 'name: ', name, 'completed: ', completed or 'false')
+    end
     if completed then
       storage['player']['achievements'][name] = true
     end
@@ -157,7 +170,9 @@ local function render(frame)
 end
 
 local function updatePVPStats(eventName)
-  log('updatePVPStats triggered by: ', eventName)
+  if DEBUG then
+    log('updatePVPStats triggered by: ', eventName)
+  end
   updateHonor()
   updateKills()
   updateRatings()
@@ -166,7 +181,9 @@ end
 -- EVENTS -------------------------------
 
 local function onEvent(self, event, unit, ...)
-  log('onEvent:', event, 'unit:', unit)
+  if DEBUG then
+    log('onEvent:', event, 'unit:', unit)
+  end
 
   if
     event == 'HONOR_XP_UPDATE' or event == 'PVP_RATED_STATS_UPDATE' or event == 'HONOR_LEVEL_UPDATE' or
@@ -214,7 +231,7 @@ end
 local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
-  frame.Title:SetPoint('TOP', 0, -5)
+  frame.Title:SetPoint('TOP', -10, -5)
   frame.Title:SetText(ADDON_NAME .. ' Stats')
 
   -- Kills
@@ -229,12 +246,6 @@ local function initContent(frame)
   frame.killsAmount:SetPoint('TOPLEFT', 50, -30)
 
   -- Honor
-  -- -- Honor Title
-  -- TODO: learn about 2d argument 'HIGHLIGHT' and 'OVERLAY'
-  -- TODO: learn about 3d argument 'GameFontNormal' and 'QuestFont_Shadow_Huge'
-  -- frame.honorTitle = frame:CreateFontString('honorTitle', 'OVERLAY', 'GameTooltipText')
-  -- frame.honorTitle:SetPoint('TOPLEFT', 0, 25)
-  -- frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
 
   -- -- Honor Amount Title
   frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameTooltipText')
@@ -260,10 +271,6 @@ local function initContent(frame)
   frame.honorLevel:SetPoint('TOPLEFT', 95, -70)
 
   -- Ratings
-  -- -- Ratings Arena Title
-  -- frame.ratingsArenaTitle = frame:CreateFontString('ratingsArenaTitle', 'OVERLAY', 'GameFontNormal')
-  -- frame.ratingsArenaTitle:SetPoint('TOPLEFT', 12, -90)
-  -- frame.ratingsArenaTitle:SetText(PVP_LABEL_ARENA) -- PVP_LABEL_ARENA = "ARENA:";, -- ARENA = "Arena";
 
   -- -- Ratings Arena 2v2 Title
   frame.ratingsArena2v2Title = frame:CreateFontString('ratingsArena2v2Title', 'OVERLAY', 'GameTooltipText')
@@ -291,9 +298,8 @@ local function initContent(frame)
 end
 
 local function initFrame(frame)
-  -- TODO: IsVisible() - Get whether the object is visible on screen (logically (IsShown() and GetParent():IsVisible()));
-  -- ~ - not
-  if frame and frame:GetHeight() ~= 0 then
+  -- if frame and frame:GetHeight() ~= 0 then -- ~ - not
+  if frame and frame:IsVisible() then -- Get whether the object is visible on screen (logically (IsShown() and GetParent():IsVisible()));
     return
   end
 
@@ -346,8 +352,6 @@ SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
   elseif command == 'help' or command == '?' then
     printHelp()
   elseif command == 'dump' then
-    -- TODO: check GetInspectSpecialization
-    -- TODO: check GetInspectRatedBGData
     log(dump(storage))
     render(uiFrame)
   end

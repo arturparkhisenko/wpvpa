@@ -13,7 +13,7 @@
 - [x] It shows Honor
 - [x] It shows Honor Level
 - [x] It shows PVP Standings for Arena
-- [ ] It shows PVP Standings for Rated Battlegrounds
+- [x] It shows PVP Standings for Rated Battlegrounds
 
 ### VSCode plugins
 
