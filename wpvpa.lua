@@ -145,6 +145,15 @@ end
 
 -- FUNCTIONS ----------------------------
 
+local function render(frame)
+  frame.killsAmount:SetText(storage['player']['kills'])
+  frame.honorAmount:SetText(storage['player']['honor'])
+  frame.honorAmountMax:SetText(storage['player']['honorMax'])
+  frame.honorLevel:SetText(storage['player']['honorLevel'])
+  frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
+  frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
+end
+
 local function updatePVPStats(eventName)
   log('updatePVPStats triggered by: ', eventName)
   updateHonor()
@@ -157,19 +166,17 @@ end
 local function onEvent(self, event, unit, ...)
   log('onEvent:', event, 'unit:', unit)
 
-  -- IsActiveBattlefieldArena()
-  if event == 'HONOR_XP_UPDATE' then
+  -- TODO: check IsActiveBattlefieldArena()
+  if
+    event == 'HONOR_XP_UPDATE' or event == 'HONOR_LEVEL_UPDATE' or event == 'UPDATE_BATTLEFIELD_SCORE' or
+      event == 'ZONE_CHANGED_NEW_AREA' or
+      event == 'PLAYER_ENTERING_WORLD'
+   then
     updatePVPStats(event)
-  elseif event == 'HONOR_LEVEL_UPDATE' then
-    updatePVPStats(event)
-  elseif event == 'UPDATE_BATTLEFIELD_SCORE' then
-    updatePVPStats(event)
+    render(uiFrame)
   elseif event == 'ACHIEVEMENT_EARNED' then
     updateAchievements()
-  elseif event == 'ZONE_CHANGED_NEW_AREA' then
-    updatePVPStats(event)
-  elseif event == 'PLAYER_ENTERING_WORLD' then
-    updatePVPStats(event)
+    render(uiFrame)
   -- elseif event == 'PLAYER_LOGIN' then
   end
 
@@ -180,6 +187,7 @@ local function onEvent(self, event, unit, ...)
     storage = getStorage(wpvpa_character_config)
     -- onInit update achievements once
     updateAchievements()
+    render(uiFrame)
   end
   if event == 'PLAYER_LOGOUT' then
     -- Save it
@@ -199,77 +207,77 @@ end
 
 -- UI and FRAME -------------------------
 
-local function render(frame)
-  frame.killsAmount:SetText(storage['player']['kills'])
-  frame.honorAmount:SetText(storage['player']['honor'])
-  frame.honorLevel:SetText(storage['player']['honorLevel'])
-  frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
-  frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
-end
-
 -- ofsx (negative values will move obj left, positive values will move obj right), defaults to 0 if not specified.
 -- ofsy (negative values will move obj down, positive values will move obj up), defaults to 0 if not specified.
 local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
-  frame.Title:SetPoint('TOP', 0, -7)
+  frame.Title:SetPoint('TOP', 0, -5)
   frame.Title:SetText(ADDON_NAME .. ' Stats')
 
   -- Kills
   -- -- Kills Amount Title
   frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameFontNormal')
-  frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
-  frame.killsAmountTitle:SetPoint('LEFT', 0, -10)
-  frame.killsAmountTitle:SetText(HONORABLE_KILLS) -- HONORABLE_KILLS = "Honorable Kills";
+  -- frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
+  frame.killsAmountTitle:SetPoint('LEFT', 12, 40)
+  frame.killsAmountTitle:SetText('Kills:') -- HONORABLE_KILLS = "Honorable Kills";
   -- -- Kills Amount
-  frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'QuestFont_Shadow_Huge')
+  frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
   -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
-  frame.killsAmount:SetPoint('LEFT', 0, -20)
+  frame.killsAmount:SetPoint('LEFT', 50, 40)
 
   -- Honor
   -- -- Honor Title
-  -- TODO: learn about this 2d argument 'HIGHLIGHT' and 'OVERLAY'
-  frame.honorTitle = frame:CreateFontString('honorTitle', 'OVERLAY', 'GameFontNormal')
-  frame.honorTitle:SetPoint('LEFT', 0, -40)
-  frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
+  -- TODO: learn about 2d argument 'HIGHLIGHT' and 'OVERLAY'
+  -- TODO: learn about 3d argument 'GameFontNormal' and 'QuestFont_Shadow_Huge'
+  -- frame.honorTitle = frame:CreateFontString('honorTitle', 'OVERLAY', 'GameFontNormal')
+  -- frame.honorTitle:SetPoint('LEFT', 0, 25)
+  -- frame.honorTitle:SetText(PVP_LABEL_HONOR) -- PVP_LABEL_HONOR = "HONOR:";, -- HONOR_POINTS = "Honor";, -- HONOR = "Honor";
 
   -- -- Honor Amount Title
   frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmountTitle:SetPoint('LEFT', 0, -60)
+  frame.honorAmountTitle:SetPoint('LEFT', 12, 20)
   frame.honorAmountTitle:SetText(HONOR_POINTS)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmount:SetPoint('LEFT', 45, -60)
+  frame.honorAmount:SetPoint('LEFT', 60, 20)
+  -- -- Honor Amount Max
+  frame.honorAmountSplitter = frame:CreateFontString('honorAmountSplitter', 'OVERLAY', 'GameFontNormal')
+  frame.honorAmountSplitter:SetPoint('LEFT', 90, 20)
+  frame.honorAmountSplitter:SetText('/')
+  -- -- Honor Amount Max
+  frame.honorAmountMax = frame:CreateFontString('honorAmountMax', 'OVERLAY', 'GameFontNormal')
+  frame.honorAmountMax:SetPoint('LEFT', 95, 20)
 
   -- -- Honor Level Title
   frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'OVERLAY', 'GameFontNormal')
-  frame.honorLevelTitle:SetPoint('LEFT', 0, -75)
+  frame.honorLevelTitle:SetPoint('LEFT', 12, 0)
   frame.honorLevelTitle:SetText(LFG_LIST_HONOR_LEVEL_INSTR_SHORT) -- LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
   -- -- Honor Level
   frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
-  frame.honorLevel:SetPoint('LEFT', 80, -75)
+  frame.honorLevel:SetPoint('LEFT', 95, 0)
 
   -- Ratings
   -- -- Ratings Arena Title
-  frame.ratingsArenaTitle = frame:CreateFontString('ratingsArenaTitle', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArenaTitle:SetPoint('LEFT', 0, -85)
-  frame.ratingsArenaTitle:SetText(PVP_LABEL_ARENA) -- PVP_LABEL_ARENA = "ARENA:";, -- ARENA = "Arena";
+  -- frame.ratingsArenaTitle = frame:CreateFontString('ratingsArenaTitle', 'OVERLAY', 'GameFontNormal')
+  -- frame.ratingsArenaTitle:SetPoint('LEFT', 12, -20)
+  -- frame.ratingsArenaTitle:SetText(PVP_LABEL_ARENA) -- PVP_LABEL_ARENA = "ARENA:";, -- ARENA = "Arena";
 
   -- -- Ratings Arena 2v2 Title
   frame.ratingsArena2v2Title = frame:CreateFontString('ratingsArena2v2Title', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena2v2Title:SetPoint('LEFT', 0, -100)
+  frame.ratingsArena2v2Title:SetPoint('LEFT', 12, -20)
   frame.ratingsArena2v2Title:SetText(ARENA_2V2)
   -- -- Ratings Arena 2v2 Amount
   frame.ratingsArena2v2Amount = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena2v2Amount:SetPoint('LEFT', 30, -100)
+  frame.ratingsArena2v2Amount:SetPoint('LEFT', 45, -20)
 
   -- -- Ratings Arena 3v3 Title
   frame.ratingsArena3v3Title = frame:CreateFontString('ratingsArena3v3Title', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena3v3Title:SetPoint('LEFT', 0, -115)
+  frame.ratingsArena3v3Title:SetPoint('LEFT', 12, -40)
   frame.ratingsArena3v3Title:SetText(ARENA_3V3)
   -- -- Ratings Arena 3v3 Amount
   frame.ratingsArena3v3Amount = frame:CreateFontString('ratingsArena3v3Amount', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena3v3Amount:SetPoint('LEFT', 30, -115)
+  frame.ratingsArena3v3Amount:SetPoint('LEFT', 45, -40)
 
   -- -- TODO: ARENA_BATTLES_2V2 = "2v2 Arena Battles";
   -- -- TODO: ARENA_BATTLES_3V3 = "3v3 Arena Battles";
@@ -292,9 +300,9 @@ local function initFrame(frame)
 
   -- Frame Config
 
-  frame:SetWidth(160)
+  frame:SetWidth(140)
   frame:SetHeight(150)
-  frame:SetAlpha(0.7)
+  frame:SetAlpha(0.8)
 
   frame:SetPoint('CENTER', -500, -300)
 
@@ -339,7 +347,6 @@ SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
     -- TODO: check GetInspectSpecialization
     -- TODO: check GetInspectRatedBGData
     log(dump(storage))
-    initContent(uiFrame)
     render(uiFrame)
   end
 end
@@ -351,7 +358,7 @@ local function onLoad()
   log('|cffc01300loaded')
   printHelp()
   uiFrame = initFrame(uiFrame)
-  -- initContent(uiFrame) -- TODO: do it!
+  initContent(uiFrame)
   registerEvents(uiFrame)
   setEventListeners(uiFrame)
 end
