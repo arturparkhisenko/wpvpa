@@ -2,6 +2,8 @@
 
 > World of Warcraft AddOn showing PVP stats
 
+![UI-preview](screenshot.png)
+
 ## Features and TODO
 
 - [x] It can read all required stats
