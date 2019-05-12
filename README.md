@@ -4,23 +4,7 @@
 
 ![UI-preview](screenshot.png)
 
-## Features and TODO
-
-- [x] It can read all required stats
-- [x] It is subscribed for events which will update stats
-- [x] It has UI frame
-- [x] Its UI frame can be moved
-- [x] Its UI frame Position could be saved
-- [x] It shows Kills
-- [x] It shows Honor
-- [x] It shows Honor Level
-- [x] It shows PVP Standings for Arena
-- [x] It shows PVP Standings for Rated Battlegrounds
-- [ ] It has a curseforge specific custom `pkgmeta.yaml` file
-- [ ] It shows PVP ranks achievements icons (example: AJ)
-- [ ] It has multiple styles/themes (example: tooltip)
-- [ ] It has settings (example: what to show, size)
-- [ ] It has a multi-language support
+It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrounds
 
 ### VSCode plugins
 
@@ -74,5 +58,19 @@
 
 - [addon guide, mmo-champion](https://www.mmo-champion.com/threads/817817-Creating-Your-Own-WoW-Addon)
 - [addon guide, wowhead](https://www.wowhead.com/guide=1949/wow-addon-writing-guide-part-one-how-to-make-your-first-addon)
+
+## TODO
+
+> Ordered by priority
+
+- [ ] Update `pkgmeta.yaml`
+- [ ] Release a version `0.1.0`
+- [ ] Publish on [CurseForge](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file)
+- [ ] Publish on [WoWInterface](https://www.wowinterface.com/forums/showthread.php?t=51553)
+- [ ] Make sure it's possible to add a Win-rate for all PVP Brackets with stats like KDA (example: 55% 10/5/16)
+- [ ] It shows PVP ranks achievements icons (example: AJ)
+- [ ] It has multiple styles/themes (example: tooltip)
+- [ ] It has settings (example: what to show, size)
+- [ ] It has a multi-language support
 
 ## [MIT License](LICENSE.md)
