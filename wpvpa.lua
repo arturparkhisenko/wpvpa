@@ -204,6 +204,11 @@ local function onEvent(self, event, unit, ...)
   -- arg1 is a file name
   if event == 'ADDON_LOADED' and unit == ADDON_NAME then
     storage = getStorage(wpvpa_character_config)
+    -- check if saved data is from the current player character
+    local currentPlayerName = GetUnitName('player', false) or 'Unknown'
+    if currentPlayerName ~= storage['player']['name'] then
+      storage = getStorage(nil)
+    end
     -- onInit update achievements once
     updateAchievements()
     render(uiFrame)
