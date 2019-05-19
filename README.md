@@ -63,7 +63,6 @@ It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrou
 
 > Ordered by priority
 
-- [ ] Update `pkgmeta.yaml`
 - [ ] Release a version `0.1.0`
 - [ ] Publish on [CurseForge](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file)
 - [ ] Publish on [WoWInterface](https://www.wowinterface.com/forums/showthread.php?t=51553)

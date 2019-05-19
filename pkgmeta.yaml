@@ -1,22 +1,21 @@
-package-as: Monkey
+package-as: wpvpa
 
-externals:
+ignore:
+  - .editorconfig
+  - .gitignore
 
 move-folders:
 
-ignore:
-  - Scripts # ignore the scripts folder
-  - Some/File.txt # ignore a specific file
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
 
-required-dependencies:
-  - monkey-town
-
-optional-dependencies:
-  - monkey-city
-
-manual-changelog: CHANGELOG.txt
-
-license-output: LICENSE.txt
+license-output: LICENSE.md
 
 tools-used:
-  - data-tools # same as data-tools/mainline
+
+externals:
+
+required-dependencies:
+
+optional-dependencies:

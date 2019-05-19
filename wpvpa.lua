@@ -1,5 +1,6 @@
 -- UPVALUES -----------------------------
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
+local CreateFrame = CreateFrame
 local GetAchievementComparisonInfo = GetAchievementComparisonInfo
 local GetAddOnMetadata = GetAddOnMetadata
 local GetPersonalRatedInfo = GetPersonalRatedInfo
@@ -10,6 +11,10 @@ local UnitClass = UnitClass
 local UnitHonor = UnitHonor
 local UnitHonorLevel = UnitHonorLevel
 local UnitHonorMax = UnitHonorMax
+local HONOR_POINTS = HONOR_POINTS
+local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
+local ARENA_2V2 = ARENA_2V2
+local ARENA_3V3 = ARENA_3V3
 
 -- CONSTANTS ----------------------------
 
