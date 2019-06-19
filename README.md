@@ -44,6 +44,7 @@ It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrou
 - [World_of_Warcraft_API](https://wowwiki.fandom.com/wiki/World_of_Warcraft_API)
 - [XML_UI](https://wowwiki.fandom.com/wiki/XML_UI)
 - [GlobalStrings](https://www.townlong-yak.com/framexml/beta/GlobalStrings.lua)
+- [reddit/wowaddons](https://www.reddit.com/r/wowaddons)
 
 ### Addons
 
@@ -66,8 +67,6 @@ It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrou
 - [ ] Release a version `0.1.0`
 - [ ] Publish on [CurseForge](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file)
 - [ ] Publish on [WoWInterface](https://www.wowinterface.com/forums/showthread.php?t=51553)
-- [ ] Make sure it's possible to add a Win-rate for all PVP Brackets with stats like KDA (example: 55% 10/5/16)
-- [ ] It shows PVP ranks achievements icons (example: AJ)
 - [ ] It has multiple styles/themes (example: tooltip)
 - [ ] It has settings (example: what to show, size)
 - [ ] It has a multi-language support

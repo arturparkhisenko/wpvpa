@@ -1,13 +1,14 @@
 -- UPVALUES -----------------------------
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local CreateFrame = CreateFrame
-local GetAchievementComparisonInfo = GetAchievementComparisonInfo
 local GetAddOnMetadata = GetAddOnMetadata
+local GetAchievementInfo = GetAchievementInfo
 local GetPersonalRatedInfo = GetPersonalRatedInfo
 local GetPVPLifetimeStats = GetPVPLifetimeStats
 local GetRealmName = GetRealmName
 local GetUnitName = GetUnitName
 local UnitClass = UnitClass
+-- local UnitFactionGroup = UnitFactionGroup
 local UnitHonor = UnitHonor
 local UnitHonorLevel = UnitHonorLevel
 local UnitHonorMax = UnitHonorMax
@@ -15,19 +16,34 @@ local HONOR_POINTS = HONOR_POINTS
 local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
 local ARENA_2V2 = ARENA_2V2
 local ARENA_3V3 = ARENA_3V3
+local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
+local UIParent = UIParent
 
 -- CONSTANTS ----------------------------
-
--- local iconHeal = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t"
--- local iconDmg = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:22:41|t"
--- local iconHonor = "Interface\\PVPFrame\\PVP-Currency-"..UnitFactionGroup('player')
--- local iconConquest = "Interface\\PVPFrame\\PVPCurrency-Conquest-"..UnitFactionGroup('player')
 
 local ADDON_NAME = 'wpvpa'
 local ADDON_VERSION = GetAddOnMetadata('wpvpa', 'Version')
 local COMMAND = '/' .. ADDON_NAME
 local DEBUG = nil
 local LOG_PREFIX = ADDON_NAME .. ': %s'
+
+local ICON_PVP_CHALLENGER = 236537
+local ICON_PVP_RIVAL = 236538
+local ICON_PVP_DUELIST = 236539
+local ICON_PVP_GLADIATOR = 236540
+
+-- local ICON_HEAL = 'Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t'
+-- local ICON_DMG = 'Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:22:41'
+-- local ICON_HONOR = 'Interface\\PVPFrame\\PVP-Currency-' .. UnitFactionGroup('player')
+-- local ICON_CONQUEST = 'Interface\\PVPFrame\\PVPCurrency-Conquest-' .. UnitFactionGroup('player')
+local ICON_BG_TEXTURE = 'Interface\\PVPFrame\\RandomPVPIcon'
+-- local ICON_FACTION = nil
+-- if (UnitFactionGroup('player') == PLAYER_FACTION_GROUP[0]) then
+--   ICON_FACTION = 'Interface\\Icons\\INV_BannerPVP_01'
+-- else
+--   ICON_FACTION = 'Interface\\Icons\\INV_BannerPVP_02'
+-- end
+local ICON_FACTION_CIRCLE = 'Interface\\TargetingFrame\\UI-PVP-' .. PLAYER_FACTION_GROUP[0]
 
 local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
 local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
@@ -81,6 +97,18 @@ local function dump(var)
   end
 end
 
+-- @name getWinRatePercent
+-- @param played integer
+-- @param won integer
+-- @return winrate integer
+-- @usage getWinRatePercent(187, 102) -- 54
+local function getWinRatePercent(played, won)
+  if played == 0 or won == 0 then
+    return 0
+  end
+  return math.floor(won / (played / 100))
+end
+
 -- STORAGE ------------------------------
 -- -- Per-character settings for each individual AddOn.
 -- -- WTF\Account\ACCOUNTNAME\RealmName\CharacterName\SavedVariables\AddOnName.lua
@@ -102,7 +130,8 @@ local function getStorage(loadedStorage)
         honorMax = UnitHonorMax('player') or 1,
         honorLevel = UnitHonorLevel('player') or 1,
         kills = GetPVPLifetimeStats() or 0,
-        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0}
+        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0},
+        winRates = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0}
       }
     }
   end
@@ -134,25 +163,16 @@ end
 local function updateRatings()
   for bracketIndex, bracket in pairs(BRACKETS) do
     -- https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua
-    local rating = GetPersonalRatedInfo(bracketIndex)
-    -- local rating,
-    --   seasonBest,
-    --   weeklyBest,
-    --   seasonPlayed,
-    --   seasonWon,
-    --   weeklyPlayed,
-    --   weeklyWon,
-    --   lastWeeksBest,
-    --   hasWon,
-    --   pvpTier,
-    --   ranking = GetPersonalRatedInfo(bracketIndex)
+    local rating, seasonBest, weeklyBest, seasonPlayed, seasonWon = GetPersonalRatedInfo(bracketIndex)
     storage['player']['ratings'][bracket] = rating or 0
+    storage['player']['winRates'][bracket] = getWinRatePercent(seasonPlayed, seasonWon)
   end
 end
 
 local function updateAchievements()
   for id, name in pairs(ACHIEVEMENTS) do
-    local completed = GetAchievementComparisonInfo(id)
+    -- local IDNumber, Name, Points, Completed, Month, Day, Year, Description, Flags, Icon, RewardText, isGuildAch = GetAchievementInfo(id)
+    local id, name, points, completed = GetAchievementInfo(id)
     if DEBUG then
       log('id: ', id, 'name: ', name, 'completed: ', completed or 'false')
     end
@@ -164,14 +184,34 @@ end
 
 -- FUNCTIONS ----------------------------
 
+local function renderHighestTitleIcon(frame)
+  if (storage['player']['achievements']['Challenger'] == true) then
+    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_CHALLENGER)
+  elseif (storage['player']['achievements']['Rival'] == true) then
+    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_RIVAL)
+  elseif (storage['player']['achievements']['Duelist'] == true) then
+    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_DUELIST)
+  elseif (storage['player']['achievements']['Gladiator'] == true) then
+    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_GLADIATOR)
+  end
+end
+
 local function render(frame)
   frame.killsAmount:SetText(storage['player']['kills'])
+
   frame.honorAmount:SetText(storage['player']['honor'])
   frame.honorAmountMax:SetText(storage['player']['honorMax'])
   frame.honorLevel:SetText(storage['player']['honorLevel'])
+
   frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
   frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
   frame.ratingsRBGAmount:SetText(storage['player']['ratings'][BRACKETS[4]])
+
+  frame.winrateArena2v2:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[1]] .. '%')
+  frame.winrateArena3v3:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[2]] .. '%')
+  frame.winrateRBG:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[4]] .. '%')
+
+  renderHighestTitleIcon(frame)
 end
 
 local function updatePVPStats(eventName)
@@ -242,7 +282,17 @@ local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
   frame.Title:SetPoint('TOP', -10, -5)
-  frame.Title:SetText(ADDON_NAME .. ' Stats')
+  frame.Title:SetText(ADDON_NAME .. ' stats')
+
+  -- Icon Addon Title
+  frame.iconAddonTitle = CreateFrame('Frame')
+  frame.iconAddonTitle.texture = frame.iconAddonTitle:CreateTexture(nil, 'BACKGROUND')
+  frame.iconAddonTitle.texture:SetTexture(ICON_FACTION_CIRCLE)
+  frame.iconAddonTitle.texture:SetAllPoints(frame.iconAddonTitle)
+  frame.iconAddonTitle:SetWidth(30)
+  frame.iconAddonTitle:SetHeight(30)
+  frame.iconAddonTitle:SetParent(frame)
+  frame.iconAddonTitle:SetPoint('TOPLEFT', frame, 10, -3)
 
   -- Kills
   -- -- Kills Amount Title
@@ -253,7 +303,7 @@ local function initContent(frame)
   -- -- Kills Amount
   frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
   -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
-  frame.killsAmount:SetPoint('TOPLEFT', 50, -30)
+  frame.killsAmount:SetPoint('TOPLEFT', 45, -30)
 
   -- Honor
 
@@ -264,7 +314,7 @@ local function initContent(frame)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
   frame.honorAmount:SetPoint('TOPLEFT', 60, -50)
-  -- -- Honor Amount Max
+  -- -- Honor Amount Splitter
   frame.honorAmountSplitter = frame:CreateFontString('honorAmountSplitter', 'OVERLAY', 'GameFontNormal')
   frame.honorAmountSplitter:SetPoint('TOPLEFT', 90, -50)
   frame.honorAmountSplitter:SetText('/')
@@ -305,6 +355,30 @@ local function initContent(frame)
   -- -- Ratings RBG Amount
   frame.ratingsRBGAmount = frame:CreateFontString('ratingsRBGAmount', 'OVERLAY', 'GameFontNormal')
   frame.ratingsRBGAmount:SetPoint('TOPLEFT', 45, -130)
+
+  -- WinRates
+
+  -- -- WinRates Arena 2v2 %
+  frame.winrateArena2v2 = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
+  frame.winrateArena2v2:SetPoint('TOPLEFT', 85, -90)
+
+  -- -- WinRates Arena 3v3 %
+  frame.winrateArena3v3 = frame:CreateFontString('ratingsArena3v3Amount', 'OVERLAY', 'GameFontNormal')
+  frame.winrateArena3v3:SetPoint('TOPLEFT', 85, -110)
+
+  -- -- WinRates RBG %
+  frame.winrateRBG = frame:CreateFontString('ratingsRBGAmount', 'OVERLAY', 'GameFontNormal')
+  frame.winrateRBG:SetPoint('TOPLEFT', 85, -130)
+
+  -- -- Icon Highest Title
+  frame.iconHighestTitle = CreateFrame('Frame')
+  frame.iconHighestTitle.texture = frame.iconHighestTitle:CreateTexture(nil, 'BACKGROUND')
+  frame.iconHighestTitle.texture:SetTexture(ICON_BG_TEXTURE)
+  frame.iconHighestTitle.texture:SetAllPoints(frame.iconHighestTitle)
+  frame.iconHighestTitle:SetWidth(30)
+  frame.iconHighestTitle:SetHeight(30)
+  frame.iconHighestTitle:SetParent(frame)
+  frame.iconHighestTitle:SetPoint('TOPRIGHT', frame, -3, -20)
 end
 
 local function initFrame(frame)
@@ -318,7 +392,7 @@ local function initFrame(frame)
 
   -- Frame Config
 
-  frame:SetWidth(145)
+  frame:SetWidth(160)
   frame:SetHeight(150)
   frame:SetAlpha(0.8)
 
