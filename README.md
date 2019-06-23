@@ -16,7 +16,6 @@ It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrou
 ## Notes
 
 - In `.toc`, hex color starts right after `|cff`: `## Title: |cffc41f3bwpvpa`
-- The codes `{rt1-8}` example `{rt8}`, codes: `1{star}`, `2{circle}`, `3{diamond}`, `4{triangle}`, `5{moon}`, `6{square}`, `7{cross}`, `8{skull}`
 
 ## Packaging and publishing
 
@@ -64,11 +63,12 @@ It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrou
 
 > Ordered by priority
 
-- [ ] Release a version `0.1.0`
-- [ ] Publish on [CurseForge](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file)
-- [ ] Publish on [WoWInterface](https://www.wowinterface.com/forums/showthread.php?t=51553)
-- [ ] It has multiple styles/themes (example: tooltip)
-- [ ] It has settings (example: what to show, size)
-- [ ] It has a multi-language support
+- It has a multi-language support
+- Release a version `0.1.0`
+- Publish on [CurseForge](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file)
+- Publish on [WoWInterface](https://www.wowinterface.com/forums/showthread.php?t=51553)
+- Publish post on reddit
+- It has multiple styles/themes (example: tooltip)
+- It has settings (example: what to show, size)
 
 ## [MIT License](LICENSE.md)
