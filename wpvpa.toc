@@ -2,7 +2,7 @@
 ## X-Min-Interface: 80000
 ## Version: 0.1.0
 
-## Title: |cffc41f3bwpvpa
+## Title: |cffc41f3bwpvpa [|cff61b219v0.1.0|r]
 ## Notes: PVP stats
 
 ## Author: Artur Parkhisenko (Rgbtur)
@@ -14,5 +14,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## SavedVariablesPerCharacter: wpvpa_character_config
+
+localization.lua
 
 wpvpa.lua

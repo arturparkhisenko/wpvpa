@@ -21,10 +21,11 @@ local UIParent = UIParent
 
 -- CONSTANTS ----------------------------
 
-local ADDON_NAME = 'wpvpa'
-local ADDON_VERSION = GetAddOnMetadata('wpvpa', 'Version')
+local ADDON_NAME, namespace = ...
+local ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, 'Version')
 local COMMAND = '/' .. ADDON_NAME
 local DEBUG = nil
+local L = namespace.L -- Languages Table
 local LOG_PREFIX = ADDON_NAME .. ': %s'
 
 local ICON_PVP_CHALLENGER = 236537
@@ -122,8 +123,8 @@ local function getStorage(loadedStorage)
     local className, classFile = UnitClass('player')
     initialStorage = {
       player = {
-        name = GetUnitName('player', false) or 'Unknown',
-        realm = GetRealmName() or 'Unknown',
+        name = GetUnitName('player', false) or L['Unknown'],
+        realm = GetRealmName() or L['Unknown'],
         class = classFile,
         achievements = {},
         honor = UnitHonor('player') or 0,
@@ -250,7 +251,7 @@ local function onEvent(self, event, unit, ...)
   if event == 'ADDON_LOADED' and unit == ADDON_NAME then
     storage = getStorage(wpvpa_character_config)
     -- check if saved data is from the current player character
-    local currentPlayerName = GetUnitName('player', false) or 'Unknown'
+    local currentPlayerName = GetUnitName('player', false) or L['Unknown']
     if currentPlayerName ~= storage['player']['name'] then
       storage = getStorage(nil)
     end
@@ -282,7 +283,7 @@ local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
   frame.Title:SetPoint('TOP', -10, -5)
-  frame.Title:SetText(ADDON_NAME .. ' stats')
+  frame.Title:SetText(ADDON_NAME .. ' ' .. L['stats'])
 
   -- Icon Addon Title
   frame.iconAddonTitle = CreateFrame('Frame')
@@ -299,7 +300,7 @@ local function initContent(frame)
   frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameTooltipText')
   -- frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
   frame.killsAmountTitle:SetPoint('TOPLEFT', 12, -30)
-  frame.killsAmountTitle:SetText('Kills') -- HONORABLE_KILLS = "Honorable Kills";
+  frame.killsAmountTitle:SetText(L['Kills']) -- HONORABLE_KILLS = "Honorable Kills";
   -- -- Kills Amount
   frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
   -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
