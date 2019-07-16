@@ -304,7 +304,7 @@ local function initContent(frame)
   -- -- Kills Amount
   frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
   -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
-  frame.killsAmount:SetPoint('TOPLEFT', 45, -30)
+  frame.killsAmount:SetPoint('TOPLEFT', 80, -30)
 
   -- Honor
 
@@ -314,14 +314,14 @@ local function initContent(frame)
   frame.honorAmountTitle:SetText(HONOR_POINTS)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmount:SetPoint('TOPLEFT', 60, -50)
+  frame.honorAmount:SetPoint('TOPLEFT', 70, -50)
   -- -- Honor Amount Splitter
   frame.honorAmountSplitter = frame:CreateFontString('honorAmountSplitter', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmountSplitter:SetPoint('TOPLEFT', 90, -50)
+  frame.honorAmountSplitter:SetPoint('TOPLEFT', 105, -50)
   frame.honorAmountSplitter:SetText('/')
   -- -- Honor Amount Max
   frame.honorAmountMax = frame:CreateFontString('honorAmountMax', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmountMax:SetPoint('TOPLEFT', 95, -50)
+  frame.honorAmountMax:SetPoint('TOPLEFT', 112, -50)
 
   -- -- Honor Level Title
   frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'OVERLAY', 'GameTooltipText')
@@ -329,7 +329,7 @@ local function initContent(frame)
   frame.honorLevelTitle:SetText(LFG_LIST_HONOR_LEVEL_INSTR_SHORT) -- LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
   -- -- Honor Level
   frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
-  frame.honorLevel:SetPoint('TOPLEFT', 95, -70)
+  frame.honorLevel:SetPoint('TOPLEFT', 110, -70)
 
   -- Ratings
 
