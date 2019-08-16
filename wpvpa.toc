@@ -2,7 +2,7 @@
 ## X-Min-Interface: 80000
 ## Version: 0.1.0
 
-## Title: |cffc41f3bwpvpa [|cff61b219v0.1.0|r]
+## Title: |cffc41f3bwpvpa |cff61b219|r[v0.1.0]
 ## Notes: PVP stats
 
 ## Author: Artur Parkhisenko (Rgbtur)

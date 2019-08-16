@@ -1,23 +1,25 @@
 -- UPVALUES -----------------------------
-local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
+local ARENA_2V2 = ARENA_2V2
+local ARENA_3V3 = ARENA_3V3
 local CreateFrame = CreateFrame
-local GetAddOnMetadata = GetAddOnMetadata
+local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
+local FocusFrameSpellBar = FocusFrameSpellBar
 local GetAchievementInfo = GetAchievementInfo
+local GetAddOnMetadata = GetAddOnMetadata
 local GetPersonalRatedInfo = GetPersonalRatedInfo
 local GetPVPLifetimeStats = GetPVPLifetimeStats
 local GetRealmName = GetRealmName
 local GetUnitName = GetUnitName
+local HONOR_POINTS = HONOR_POINTS
+local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
+local MainMenuBarArtFrame = MainMenuBarArtFrame
+local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
+local UIParent = UIParent
 local UnitClass = UnitClass
 -- local UnitFactionGroup = UnitFactionGroup
 local UnitHonor = UnitHonor
 local UnitHonorLevel = UnitHonorLevel
 local UnitHonorMax = UnitHonorMax
-local HONOR_POINTS = HONOR_POINTS
-local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
-local ARENA_2V2 = ARENA_2V2
-local ARENA_3V3 = ARENA_3V3
-local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
-local UIParent = UIParent
 
 -- CONSTANTS ----------------------------
 
@@ -164,7 +166,28 @@ end
 local function updateRatings()
   for bracketIndex, bracket in pairs(BRACKETS) do
     -- https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua
-    local rating, seasonBest, weeklyBest, seasonPlayed, seasonWon = GetPersonalRatedInfo(bracketIndex)
+    local rating, seasonBest, weeklyBest, seasonPlayed, seasonWon, weeklyPlayed, weeklyWon, cap =
+      GetPersonalRatedInfo(bracketIndex)
+    if DEBUG then
+      log(
+        'rating: ',
+        rating,
+        'seasonBest: ',
+        seasonBest,
+        'weeklyBest: ',
+        weeklyBest,
+        'seasonPlayed: ',
+        seasonPlayed,
+        'seasonWon: ',
+        seasonWon,
+        'weeklyPlayed: ',
+        weeklyPlayed,
+        'weeklyWon: ',
+        weeklyWon,
+        'cap: ',
+        cap
+      )
+    end
     storage['player']['ratings'][bracket] = rating or 0
     storage['player']['winRates'][bracket] = getWinRatePercent(seasonPlayed, seasonWon)
   end
@@ -276,6 +299,13 @@ local function setEventListeners(frame)
 end
 
 -- UI and FRAME -------------------------
+
+local function initSettings(frame)
+  -- https://wow.gamepedia.com/Using_the_Interface_Options_Addons_panel
+  -- https://wowwiki.fandom.com/wiki/Using_the_Interface_Options_Addons_panel
+  -- https://wowwiki.fandom.com/wiki/Creating_GUI_configuration_options
+  -- TODO: continue
+end
 
 -- ofsx (negative values will move obj left, positive values will move obj right), defaults to 0 if not specified.
 -- ofsy (negative values will move obj down, positive values will move obj up), defaults to 0 if not specified.

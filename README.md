@@ -71,7 +71,7 @@ It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrou
 - Publish on [CurseForge](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file)
 - Publish on [WoWInterface](https://www.wowinterface.com/forums/showthread.php?t=51553)
 - Publish post on reddit
-- It has multiple styles/themes (example: tooltip)
-- It has settings (example: what to show, size)
+- Add multiple styles/themes (example: tooltip)
+- Add settings (example: what to show, size)
 
 ## [MIT License](LICENSE.md)
