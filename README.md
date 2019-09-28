@@ -1,10 +1,10 @@
 # wpvpa ⚔️
 
-> World of Warcraft AddOn showing PVP stats
+> World of Warcraft (Retail and Classic) AddOn showing PVP stats
 
 ![UI-preview](screenshot.png)
 
-It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrounds
+It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Battlegrounds)
 
 ### VSCode plugins
 
@@ -27,6 +27,11 @@ It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrou
 - upvalue globals like: `local _G = G`
 - `for i = 1, #tbl do local v = tbl[ i ]` instead of  `for i, v in ipairs(tbl) do`
 - `string.format('wpvpa: %s', 'hello')` instead of of `("wpvpa: %s"):format('hello')`
+
+### Classic
+
+- [GlobalAPI](https://github.com/Ketho/BlizzardInterfaceResources/blob/classic/Resources/GlobalAPI.lua)
+- [Events](https://github.com/Ketho/BlizzardInterfaceResources/blob/classic/Resources/Events.lua)
 
 ## URLs
 
@@ -66,6 +71,7 @@ It shows Kills, Honor, Honor Level, PVP Standings for Arena and Rated Battlegrou
 
 > Ordered by priority
 
+- Change UI for both, use modular import
 - Improve the UI positions for the multi-language support
 - Release a version `0.1.0`
 - Publish on [CurseForge](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file)

@@ -1,11 +1,14 @@
 -- UPVALUES -----------------------------
 local ARENA_2V2 = ARENA_2V2
 local ARENA_3V3 = ARENA_3V3
+local ClearInspectPlayer = ClearInspectPlayer
 local CreateFrame = CreateFrame
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local FocusFrameSpellBar = FocusFrameSpellBar
 local GetAchievementInfo = GetAchievementInfo
 local GetAddOnMetadata = GetAddOnMetadata
+local GetInspectHonorData = GetInspectHonorData
+local GetInspectPVPRankProgress = GetInspectPVPRankProgress
 local GetPersonalRatedInfo = GetPersonalRatedInfo
 local GetPVPLifetimeStats = GetPVPLifetimeStats
 local GetRealmName = GetRealmName
@@ -13,7 +16,9 @@ local GetUnitName = GetUnitName
 local HONOR_POINTS = HONOR_POINTS
 local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
 local MainMenuBarArtFrame = MainMenuBarArtFrame
+local NotifyInspect = NotifyInspect
 local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
+local RequestInspectHonorData = RequestInspectHonorData
 local UIParent = UIParent
 local UnitClass = UnitClass
 -- local UnitFactionGroup = UnitFactionGroup
@@ -57,6 +62,7 @@ local EVENTS = {
   'HONOR_LEVEL_UPDATE',
   'UPDATE_BATTLEFIELD_SCORE',
   'ACHIEVEMENT_EARNED',
+  'PVP_WORLDSTATE_UPDATE',
   'ZONE_CHANGED_NEW_AREA',
   'PLAYER_ENTERING_WORLD',
   'PLAYER_LOGIN',
@@ -191,6 +197,34 @@ local function updateRatings()
     storage['player']['ratings'][bracket] = rating or 0
     storage['player']['winRates'][bracket] = getWinRatePercent(seasonPlayed, seasonWon)
   end
+
+  -- TODO: Classic part
+  local playerUnitId = 'player'
+  local rankPoints = 0
+
+  NotifyInspect(playerUnitId)
+  RequestInspectHonorData()
+
+  local _, rank = GetPVPRankInfo(UnitPVPRank(playerUnitId))
+  local _, _, _, _, thisweekHK, thisWeekHonor, _, lastWeekHonor, standing = GetInspectHonorData()
+  local rankProgress = GetInspectPVPRankProgress()
+
+  ClearInspectPlayer()
+
+  if (thisweekHK >= 15) then
+    if (rank >= 3) then
+      rankPoints = math.ceil((rank - 2) * 5000 + rankProgress * 5000)
+    elseif (rank == 2) then
+      rankPoints = math.ceil(rankProgress * 3000 + 2000)
+    end
+  end
+
+  if (DEBUG) then
+    log('rating: ', thisWeekHonor, 'cap: ', lastWeekHonor, standing, rankProgress, rankPoints)
+  end
+
+  -- TODO: write to the storage
+  -- storage['player']['ratings'][bracket] = rating or 0
 end
 
 local function updateAchievements()
@@ -250,15 +284,15 @@ end
 -- EVENTS -------------------------------
 
 local function onEvent(self, event, unit, ...)
-  if DEBUG then
+  if (DEBUG) then
     log('onEvent:', event, 'unit:', unit)
   end
 
   if
-    event == 'HONOR_XP_UPDATE' or event == 'PVP_RATED_STATS_UPDATE' or event == 'HONOR_LEVEL_UPDATE' or
+    (event == 'HONOR_XP_UPDATE' or event == 'PVP_RATED_STATS_UPDATE' or event == 'HONOR_LEVEL_UPDATE' or
       event == 'UPDATE_BATTLEFIELD_SCORE' or
       event == 'ZONE_CHANGED_NEW_AREA' or
-      event == 'PLAYER_ENTERING_WORLD'
+      event == 'PLAYER_ENTERING_WORLD')
    then
     updatePVPStats(event)
     render(uiFrame)
@@ -439,18 +473,18 @@ local function initFrame(frame)
   frame:SetResizable(false)
   frame:SetUserPlaced(true)
 
-  frame:SetBackdrop(
-    {
-      bgFile = 'Interface/Tooltips/UI-Tooltip-Background',
-      edgeFile = 'Interface/Tooltips/UI-Tooltip-Border',
-      tile = true,
-      tileSize = 16,
-      edgeSize = 16,
-      insets = {left = 4, right = 4, top = 4, bottom = 4}
-    }
-  )
-  frame:SetBackdropColor(0, 0, 0, .8)
-  frame:SetBackdropBorderColor(1, 1, 1, 1)
+  -- frame:SetBackdrop(
+  --   {
+  --     bgFile = 'Interface/Tooltips/UI-Tooltip-Background',
+  --     edgeFile = 'Interface/Tooltips/UI-Tooltip-Border',
+  --     tile = true,
+  --     tileSize = 16,
+  --     edgeSize = 16,
+  --     insets = {left = 4, right = 4, top = 4, bottom = 4}
+  --   }
+  -- )
+  -- frame:SetBackdropColor(0, 0, 0, .8)
+  -- frame:SetBackdropBorderColor(1, 1, 1, 1)
 
   return frame
 end

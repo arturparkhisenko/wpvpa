@@ -1,5 +1,5 @@
 ## Interface: 80100
-## X-Min-Interface: 80000
+## X-Min-Interface: 11302
 ## Version: 0.1.0
 
 ## Title: |cffc41f3bwpvpa |cff61b219|r[v0.1.0]
