@@ -1,30 +1,9 @@
 -- UPVALUES -----------------------------
-local ARENA_2V2 = ARENA_2V2
-local ARENA_3V3 = ARENA_3V3
-local ClearInspectPlayer = ClearInspectPlayer
+local UIParent = UIParent
 local CreateFrame = CreateFrame
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
-local FocusFrameSpellBar = FocusFrameSpellBar
-local GetAchievementInfo = GetAchievementInfo
 local GetAddOnMetadata = GetAddOnMetadata
-local GetInspectHonorData = GetInspectHonorData
-local GetInspectPVPRankProgress = GetInspectPVPRankProgress
-local GetPersonalRatedInfo = GetPersonalRatedInfo
-local GetPVPLifetimeStats = GetPVPLifetimeStats
-local GetRealmName = GetRealmName
 local GetUnitName = GetUnitName
-local HONOR_POINTS = HONOR_POINTS
-local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
-local MainMenuBarArtFrame = MainMenuBarArtFrame
-local NotifyInspect = NotifyInspect
-local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
-local RequestInspectHonorData = RequestInspectHonorData
-local UIParent = UIParent
-local UnitClass = UnitClass
--- local UnitFactionGroup = UnitFactionGroup
-local UnitHonor = UnitHonor
-local UnitHonorLevel = UnitHonorLevel
-local UnitHonorMax = UnitHonorMax
 
 -- CONSTANTS ----------------------------
 
@@ -32,260 +11,24 @@ local ADDON_NAME, namespace = ...
 local ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, 'Version')
 local COMMAND = '/' .. ADDON_NAME
 local DEBUG = nil
-local L = namespace.L -- Languages Table
 local LOG_PREFIX = ADDON_NAME .. ': %s'
 
-local ICON_PVP_CHALLENGER = 236537
-local ICON_PVP_RIVAL = 236538
-local ICON_PVP_DUELIST = 236539
-local ICON_PVP_GLADIATOR = 236540
+-- IMPORTS ------------------------------
 
--- local ICON_HEAL = 'Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t'
--- local ICON_DMG = 'Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:22:41'
--- local ICON_HONOR = 'Interface\\PVPFrame\\PVP-Currency-' .. UnitFactionGroup('player')
--- local ICON_CONQUEST = 'Interface\\PVPFrame\\PVPCurrency-Conquest-' .. UnitFactionGroup('player')
-local ICON_BG_TEXTURE = 'Interface\\PVPFrame\\RandomPVPIcon'
--- local ICON_FACTION = nil
--- if (UnitFactionGroup('player') == PLAYER_FACTION_GROUP[0]) then
---   ICON_FACTION = 'Interface\\Icons\\INV_BannerPVP_01'
--- else
---   ICON_FACTION = 'Interface\\Icons\\INV_BannerPVP_02'
--- end
-local ICON_FACTION_CIRCLE = 'Interface\\TargetingFrame\\UI-PVP-' .. PLAYER_FACTION_GROUP[0]
-
-local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
-local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
--- Events sorted by how often they are triggered
-local EVENTS = {
-  'HONOR_XP_UPDATE',
-  'PVP_RATED_STATS_UPDATE',
-  'HONOR_LEVEL_UPDATE',
-  'UPDATE_BATTLEFIELD_SCORE',
-  'ACHIEVEMENT_EARNED',
-  'PVP_WORLDSTATE_UPDATE',
-  'ZONE_CHANGED_NEW_AREA',
-  'PLAYER_ENTERING_WORLD',
-  'PLAYER_LOGIN',
-  'PLAYER_LOGOUT', -- Fired when about to log out
-  'ADDON_LOADED' -- Fired when saved variables are loaded
-}
+local L = namespace.L -- Languages Table
+local UTILS = namespace.UTILS
 
 -- VARIABLES ----------------------------
 
 local uiFrame = nil
 local storage = nil
-
--- UTILITIES ----------------------------
-
--- @name log
--- @param arg
--- @usage log('Roses are red...')
-local function log(...)
-  local msg = ''
-  for _, part in ipairs {...} do
-    msg = msg .. tostring(part) .. ' '
-  end
-  DEFAULT_CHAT_FRAME:AddMessage(string.format(LOG_PREFIX, msg))
-end
-
--- @name dump
--- @param var any
--- @usage dump(storage)
-local function dump(var)
-  if type(var) == 'table' then
-    local s = '{ '
-    for k, v in pairs(var) do
-      if type(k) ~= 'number' then
-        k = '"' .. k .. '"'
-      end
-      s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
-    end
-    return s .. '} '
-  else
-    return tostring(var)
-  end
-end
-
--- @name getWinRatePercent
--- @param played integer
--- @param won integer
--- @return winrate integer
--- @usage getWinRatePercent(187, 102) -- 54
-local function getWinRatePercent(played, won)
-  if played == 0 or won == 0 then
-    return 0
-  end
-  return math.floor(won / (played / 100))
-end
-
--- STORAGE ------------------------------
--- -- Per-character settings for each individual AddOn.
--- -- WTF\Account\ACCOUNTNAME\RealmName\CharacterName\SavedVariables\AddOnName.lua
-
-local function getStorage(loadedStorage)
-  local initialStorage = loadedStorage
-  if initialStorage == nil then
-    if DEBUG then
-      log('new config will be saved.')
-    end
-    local className, classFile = UnitClass('player')
-    initialStorage = {
-      player = {
-        name = GetUnitName('player', false) or L['Unknown'],
-        realm = GetRealmName() or L['Unknown'],
-        class = classFile,
-        achievements = {},
-        honor = UnitHonor('player') or 0,
-        honorMax = UnitHonorMax('player') or 1,
-        honorLevel = UnitHonorLevel('player') or 1,
-        kills = GetPVPLifetimeStats() or 0,
-        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0},
-        winRates = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0}
-      }
-    }
-  end
-  return initialStorage
-end
-
--- HELP ---------------------------------
-
-local function printHelp()
-  log('v' .. ADDON_VERSION .. ', commands:')
-  log(COMMAND .. ' show - show addon frame')
-  log(COMMAND .. ' hide - hide addon frame')
-  log('Examples: "/wpvpa ?" or "/wpvpa help" - Print this list')
-end
-
--- STORE ACTIONS ------------------------
-
-local function updateHonor()
-  storage['player']['honor'] = UnitHonor('player') or 0
-  storage['player']['honorMax'] = UnitHonorMax('player') or 1
-  storage['player']['honorLevel'] = UnitHonorLevel('player') or 1
-end
-
-local function updateKills()
-  local honorableKills = GetPVPLifetimeStats()
-  storage['player']['kills'] = honorableKills or 0
-end
-
-local function updateRatings()
-  for bracketIndex, bracket in pairs(BRACKETS) do
-    -- https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua
-    local rating, seasonBest, weeklyBest, seasonPlayed, seasonWon, weeklyPlayed, weeklyWon, cap =
-      GetPersonalRatedInfo(bracketIndex)
-    if DEBUG then
-      log(
-        'rating: ',
-        rating,
-        'seasonBest: ',
-        seasonBest,
-        'weeklyBest: ',
-        weeklyBest,
-        'seasonPlayed: ',
-        seasonPlayed,
-        'seasonWon: ',
-        seasonWon,
-        'weeklyPlayed: ',
-        weeklyPlayed,
-        'weeklyWon: ',
-        weeklyWon,
-        'cap: ',
-        cap
-      )
-    end
-    storage['player']['ratings'][bracket] = rating or 0
-    storage['player']['winRates'][bracket] = getWinRatePercent(seasonPlayed, seasonWon)
-  end
-
-  -- TODO: Classic part
-  local playerUnitId = 'player'
-  local rankPoints = 0
-
-  NotifyInspect(playerUnitId)
-  RequestInspectHonorData()
-
-  local _, rank = GetPVPRankInfo(UnitPVPRank(playerUnitId))
-  local _, _, _, _, thisweekHK, thisWeekHonor, _, lastWeekHonor, standing = GetInspectHonorData()
-  local rankProgress = GetInspectPVPRankProgress()
-
-  ClearInspectPlayer()
-
-  if (thisweekHK >= 15) then
-    if (rank >= 3) then
-      rankPoints = math.ceil((rank - 2) * 5000 + rankProgress * 5000)
-    elseif (rank == 2) then
-      rankPoints = math.ceil(rankProgress * 3000 + 2000)
-    end
-  end
-
-  if (DEBUG) then
-    log('rating: ', thisWeekHonor, 'cap: ', lastWeekHonor, standing, rankProgress, rankPoints)
-  end
-
-  -- TODO: write to the storage
-  -- storage['player']['ratings'][bracket] = rating or 0
-end
-
-local function updateAchievements()
-  for id, name in pairs(ACHIEVEMENTS) do
-    -- local IDNumber, Name, Points, Completed, Month, Day, Year, Description, Flags, Icon, RewardText, isGuildAch = GetAchievementInfo(id)
-    local id, name, points, completed = GetAchievementInfo(id)
-    if DEBUG then
-      log('id: ', id, 'name: ', name, 'completed: ', completed or 'false')
-    end
-    if completed then
-      storage['player']['achievements'][name] = true
-    end
-  end
-end
-
--- FUNCTIONS ----------------------------
-
-local function renderHighestTitleIcon(frame)
-  if (storage['player']['achievements']['Challenger'] == true) then
-    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_CHALLENGER)
-  elseif (storage['player']['achievements']['Rival'] == true) then
-    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_RIVAL)
-  elseif (storage['player']['achievements']['Duelist'] == true) then
-    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_DUELIST)
-  elseif (storage['player']['achievements']['Gladiator'] == true) then
-    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_GLADIATOR)
-  end
-end
-
-local function render(frame)
-  frame.killsAmount:SetText(storage['player']['kills'])
-
-  frame.honorAmount:SetText(storage['player']['honor'])
-  frame.honorAmountMax:SetText(storage['player']['honorMax'])
-  frame.honorLevel:SetText(storage['player']['honorLevel'])
-
-  frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
-  frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
-  frame.ratingsRBGAmount:SetText(storage['player']['ratings'][BRACKETS[4]])
-
-  frame.winrateArena2v2:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[1]] .. '%')
-  frame.winrateArena3v3:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[2]] .. '%')
-  frame.winrateRBG:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[4]] .. '%')
-
-  renderHighestTitleIcon(frame)
-end
-
-local function updatePVPStats(eventName)
-  if DEBUG then
-    log('updatePVPStats triggered by: ', eventName)
-  end
-  updateHonor()
-  updateKills()
-  updateRatings()
-end
+local isClassic = nil
 
 -- EVENTS -------------------------------
 
 local function onEvent(self, event, unit, ...)
   if (DEBUG) then
-    log('onEvent:', event, 'unit:', unit)
+    UTILS.log('onEvent:', event, 'unit:', unit)
   end
 
   if
@@ -334,12 +77,12 @@ end
 
 -- UI and FRAME -------------------------
 
-local function initSettings(frame)
-  -- https://wow.gamepedia.com/Using_the_Interface_Options_Addons_panel
-  -- https://wowwiki.fandom.com/wiki/Using_the_Interface_Options_Addons_panel
-  -- https://wowwiki.fandom.com/wiki/Creating_GUI_configuration_options
-  -- TODO: continue
-end
+-- TODO: implement settings feature
+-- local function initSettings(frame)
+--   -- https://wow.gamepedia.com/Using_the_Interface_Options_Addons_panel
+--   -- https://wowwiki.fandom.com/wiki/Using_the_Interface_Options_Addons_panel
+--   -- https://wowwiki.fandom.com/wiki/Creating_GUI_configuration_options
+-- end
 
 -- ofsx (negative values will move obj left, positive values will move obj right), defaults to 0 if not specified.
 -- ofsy (negative values will move obj down, positive values will move obj up), defaults to 0 if not specified.
@@ -379,14 +122,6 @@ local function initContent(frame)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
   frame.honorAmount:SetPoint('TOPLEFT', 70, -50)
-  -- -- Honor Amount Splitter
-  frame.honorAmountSplitter = frame:CreateFontString('honorAmountSplitter', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmountSplitter:SetPoint('TOPLEFT', 105, -50)
-  frame.honorAmountSplitter:SetText('/')
-  -- -- Honor Amount Max
-  frame.honorAmountMax = frame:CreateFontString('honorAmountMax', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmountMax:SetPoint('TOPLEFT', 112, -50)
-
   -- -- Honor Level Title
   frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'OVERLAY', 'GameTooltipText')
   frame.honorLevelTitle:SetPoint('TOPLEFT', 12, -70)
@@ -395,55 +130,11 @@ local function initContent(frame)
   frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
   frame.honorLevel:SetPoint('TOPLEFT', 110, -70)
 
-  -- Ratings
-
-  -- -- Ratings Arena 2v2 Title
-  frame.ratingsArena2v2Title = frame:CreateFontString('ratingsArena2v2Title', 'OVERLAY', 'GameTooltipText')
-  frame.ratingsArena2v2Title:SetPoint('TOPLEFT', 12, -90)
-  frame.ratingsArena2v2Title:SetText(ARENA_2V2)
-  -- -- Ratings Arena 2v2 Amount
-  frame.ratingsArena2v2Amount = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena2v2Amount:SetPoint('TOPLEFT', 45, -90)
-
-  -- -- Ratings Arena 3v3 Title
-  frame.ratingsArena3v3Title = frame:CreateFontString('ratingsArena3v3Title', 'OVERLAY', 'GameTooltipText')
-  frame.ratingsArena3v3Title:SetPoint('TOPLEFT', 12, -110)
-  frame.ratingsArena3v3Title:SetText(ARENA_3V3)
-  -- -- Ratings Arena 3v3 Amount
-  frame.ratingsArena3v3Amount = frame:CreateFontString('ratingsArena3v3Amount', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsArena3v3Amount:SetPoint('TOPLEFT', 45, -110)
-
-  -- -- Ratings RBG Title
-  frame.ratingsRBGTitle = frame:CreateFontString('ratingsRBGTitle', 'OVERLAY', 'GameTooltipText')
-  frame.ratingsRBGTitle:SetPoint('TOPLEFT', 12, -130)
-  frame.ratingsRBGTitle:SetText('RBG') -- BATTLEGROUND_RATING = "Battleground Rating";, PVP_RATED_BATTLEGROUND = "Rated Battleground";
-  -- -- Ratings RBG Amount
-  frame.ratingsRBGAmount = frame:CreateFontString('ratingsRBGAmount', 'OVERLAY', 'GameFontNormal')
-  frame.ratingsRBGAmount:SetPoint('TOPLEFT', 45, -130)
-
   -- WinRates
 
-  -- -- WinRates Arena 2v2 %
+  -- -- Kill Death Ratio
   frame.winrateArena2v2 = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
   frame.winrateArena2v2:SetPoint('TOPLEFT', 85, -90)
-
-  -- -- WinRates Arena 3v3 %
-  frame.winrateArena3v3 = frame:CreateFontString('ratingsArena3v3Amount', 'OVERLAY', 'GameFontNormal')
-  frame.winrateArena3v3:SetPoint('TOPLEFT', 85, -110)
-
-  -- -- WinRates RBG %
-  frame.winrateRBG = frame:CreateFontString('ratingsRBGAmount', 'OVERLAY', 'GameFontNormal')
-  frame.winrateRBG:SetPoint('TOPLEFT', 85, -130)
-
-  -- -- Icon Highest Title
-  frame.iconHighestTitle = CreateFrame('Frame')
-  frame.iconHighestTitle.texture = frame.iconHighestTitle:CreateTexture(nil, 'BACKGROUND')
-  frame.iconHighestTitle.texture:SetTexture(ICON_BG_TEXTURE)
-  frame.iconHighestTitle.texture:SetAllPoints(frame.iconHighestTitle)
-  frame.iconHighestTitle:SetWidth(30)
-  frame.iconHighestTitle:SetHeight(30)
-  frame.iconHighestTitle:SetParent(frame)
-  frame.iconHighestTitle:SetPoint('TOPRIGHT', frame, -3, -20)
 end
 
 local function initFrame(frame)
@@ -492,7 +183,7 @@ end
 -- COMMANDS -----------------------------
 
 SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
-  log(msg)
+  UTILS.log(msg)
   local command = string.lower(msg:match('^(%S*)%s*(.-)$'))
   if command == 'show' then
     uiFrame:Show()
@@ -501,7 +192,7 @@ SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
   elseif command == 'help' or command == '?' then
     printHelp()
   elseif command == 'dump' then
-    log(dump(storage))
+    UTILS.log(dump(storage))
     render(uiFrame)
   end
 end
@@ -510,7 +201,9 @@ SLASH_WPVPA_SLASHCMD1 = COMMAND
 -- MAIN ---------------------------------
 
 local function onLoad()
-  log('|cffc01300loaded')
+  isClassic = checkIfClassic()
+  loadAPI(isClassic)
+  UTILS.log('|cffc01300loaded')
   printHelp()
   uiFrame = initFrame(uiFrame)
   initContent(uiFrame)
