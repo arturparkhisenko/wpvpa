@@ -52,6 +52,12 @@ It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Ba
 - [phanx resources](https://phanx.net/addons/resources)
 - [UI_escape_sequences](https://wow.gamepedia.com/UI_escape_sequences)
 
+### Porting to Classic 1.13.2
+
+- [diff_of_current_classic_vs_live_part_2_framexml](https://www.reddit.com/r/classicwow/comments/bnn2jp/diff_of_current_classic_vs_live_part_2_framexml/)
+- [World_of_Warcraft_API#Classic_Specific_Functions](https://wow.gamepedia.com/World_of_Warcraft_API#Classic_Specific_Functions)
+- [Porting_addons_to_Classic](https://wow.gamepedia.com/Porting_addons_to_Classic)
+
 ### Addons
 
 - [vanilla-wow-addons](https://github.com/ericraio/vanilla-wow-addons)
