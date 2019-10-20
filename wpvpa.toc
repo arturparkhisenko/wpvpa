@@ -3,11 +3,13 @@
 ## Version: 0.1.0
 
 ## Title: |cffc41f3bwpvpa |cff61b219|r[v0.1.0]
-## Notes: PVP stats
+## Notes: PVP stats (Beta)
 
 ## Author: Artur Parkhisenko (Rgbtur)
-## X-Website: https://github.com/arturparkhisenko/wpvpa
 ## X-License: MIT
+## X-Website: https://github.com/arturparkhisenko/wpvpa
+## X-Date: 2019-10-19
+## X-Category: Battlegrounds/PvP
 ## X-Curse-Project-ID: 00000
 ## X-WoWI-ID: 00000
 
@@ -17,4 +19,6 @@
 
 localization.lua
 
+wpvpa-classic.lua
+wpvpa-retail.lua
 wpvpa.lua
