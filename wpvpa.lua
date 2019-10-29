@@ -22,7 +22,7 @@ local UTILS = namespace.UTILS
 
 local uiFrame = nil
 local storage = nil
-local isClassic = nil
+local classic = nil
 
 -- EVENTS -------------------------------
 
@@ -190,7 +190,7 @@ SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
   elseif command == 'hide' then
     uiFrame:Hide()
   elseif command == 'help' or command == '?' then
-    printHelp()
+    UTILS.printHelp()
   elseif command == 'dump' then
     UTILS.log(dump(storage))
     render(uiFrame)
@@ -201,10 +201,10 @@ SLASH_WPVPA_SLASHCMD1 = COMMAND
 -- MAIN ---------------------------------
 
 local function onLoad()
-  isClassic = checkIfClassic()
-  loadAPI(isClassic)
+  classic = UTILS.isClassic()
+  UTILS.loadAPI(classic)
   UTILS.log('|cffc01300loaded')
-  printHelp()
+  UTILS.printHelp()
   uiFrame = initFrame(uiFrame)
   initContent(uiFrame)
   registerEvents(uiFrame)

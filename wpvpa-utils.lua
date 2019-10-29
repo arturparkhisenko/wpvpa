@@ -1,8 +1,10 @@
 -- UPVALUES -----------------------------
 
-local GetBuildInfo = GetBuildInfo
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local GetAddOnMetadata = GetAddOnMetadata
+local GetBuildInfo = GetBuildInfo
+local WOW_PROJECT_CLASSIC = WOW_PROJECT_CLASSIC
+local WOW_PROJECT_ID = WOW_PROJECT_ID
 
 -- CONSTANTS ----------------------------
 
@@ -11,35 +13,26 @@ local ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, 'Version')
 local COMMAND = '/' .. ADDON_NAME
 local LOG_PREFIX = ADDON_NAME .. ': %s'
 
+-- IMPORTS ------------------------------
+
+local API_CLASSIC = namespace.API_CLASSIC
+local API_RETAIL = namespace.API_RETAIL
+
 -- MODULE -------------------------------
 
 local UTILS = {}
 namespace.UTILS = UTILS
 
+local API = {}
+namespace.API = API
+
 -- UTILITIES ----------------------------
 
--- @name checkIfClassic
+-- @name isClassic
 -- @return classic boolean
--- @usage UTILS.checkIfClassic()
-function UTILS:checkIfClassic()
-  local result = false
-  -- MACRO
-  -- /script v, b, d, t = GetBuildInfo()
-  -- /script print(string.format("version = %s, build = %s, date = '%s', tocversion = %s.", v, b, d, t))
-  -- https://wowwiki.fandom.com/wiki/API_GetBuildInfo
-  local version, build, date, tocversion = GetBuildInfo()
-  -- v = 1.13.2, b = 32089, d = 'Oct 4 2019', t = 11302
-
-  if (version == '1.13.2') then
-    result = true
-  end
-
-  -- TODO: check it
-  -- if (tocversion >= 11300 and tocversion < 12000) then
-  --   result = true
-  -- end
-
-  return result
+-- @usage UTILS.isClassic()
+function UTILS:isClassic()
+  return WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 end
 
 -- @name log
@@ -68,6 +61,18 @@ function UTILS:dump(var)
     return s .. '} '
   else
     return tostring(var)
+  end
+end
+
+-- @name loadAPI
+-- @usage UTILS.loadAPI(classic)
+function UTILS:loadAPI(classic)
+  if (classic == true) then
+    UTILS:log('Loading API for Classic.')
+    API = API_CLASSIC
+  else
+    UTILS:log('Loading API for Retail.')
+    API = API_RETAIL
   end
 end
 
