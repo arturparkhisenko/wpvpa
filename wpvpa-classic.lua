@@ -1,5 +1,4 @@
 -- UPVALUES -----------------------------
-
 local ClearInspectPlayer = ClearInspectPlayer
 local CreateFrame = CreateFrame
 local GetAchievementInfo = GetAchievementInfo
@@ -9,7 +8,6 @@ local GetInspectPVPRankProgress = GetInspectPVPRankProgress
 local GetPersonalRatedInfo = GetPersonalRatedInfo
 local GetPVPLifetimeStats = GetPVPLifetimeStats
 local GetPVPRankInfo = GetPVPRankInfo
-local UnitPVPRank = UnitPVPRank
 local GetRealmName = GetRealmName
 local GetUnitName = GetUnitName
 local HONOR_POINTS = HONOR_POINTS
@@ -24,14 +22,12 @@ local UnitFactionGroup = UnitFactionGroup
 local UnitHonor = UnitHonor
 local UnitHonorLevel = UnitHonorLevel
 local UnitHonorMax = UnitHonorMax
+local UnitPVPRank = UnitPVPRank
 
 -- CONSTANTS ----------------------------
 
 local ADDON_NAME, namespace = ...
-local ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, 'Version')
-local COMMAND = '/' .. ADDON_NAME
 local DEBUG = nil
-local LOG_PREFIX = ADDON_NAME .. ': %s'
 
 -- IMPORTS ------------------------------
 
@@ -42,6 +38,11 @@ local UTILS = namespace.UTILS
 
 local API_CLASSIC = {}
 namespace.API_CLASSIC = API_CLASSIC
+
+-- VARIABLES ----------------------------
+
+local storage = nil
+local uiFrame = nil
 
 -----------------------------------------
 
@@ -309,4 +310,17 @@ local function initFrame(frame)
   -- frame:SetBackdropBorderColor(1, 1, 1, 1)
 
   return frame
+end
+
+-- INIT ---------------------------------
+
+-- @name init
+-- @usage API_CLASSIC.init(storage, uiFrame, DEBUG)
+function API_CLASSIC:init(globalStorage, globalUiFrame, globalDebug)
+  storage = globalStorage
+  DEBUG = globalDebug
+  uiFrame = initFrame(globalUiFrame)
+  initContent(uiFrame)
+  registerEvents(uiFrame)
+  setEventListeners(uiFrame)
 end
