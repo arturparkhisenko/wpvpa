@@ -28,6 +28,7 @@ if LOCALE == 'deDE' then
   L['Unknown'] = 'Unbekannte'
   L['stats'] = 'Statistiken'
   L['Kills'] = 'Tötet'
+  L['loaded'] = 'geladen'
   return
 end
 
@@ -37,6 +38,7 @@ if LOCALE == 'frFR' then
   L['Unknown'] = 'Inconnu'
   L['stats'] = 'Statistiques'
   L['Kills'] = 'Tue'
+  L['loaded'] = 'chargé'
   return
 end
 
@@ -46,6 +48,7 @@ if LOCALE == 'esES' or LOCALE == 'esMX' then
   L['Unknown'] = 'Desconocido'
   L['stats'] = 'Estadísticas'
   L['Kills'] = 'Mata'
+  L['loaded'] = 'cargado'
   return
 end
 
@@ -57,6 +60,7 @@ if LOCALE == 'ptBR' then
   L['Unknown'] = 'Desconhecido'
   L['stats'] = 'Estatísticas'
   L['Kills'] = 'Mata'
+  L['loaded'] = 'carregado'
   return
 end
 
@@ -66,6 +70,7 @@ if LOCALE == 'ruRU' then
   L['Unknown'] = 'Неизвестно'
   L['stats'] = 'Статистика'
   L['Kills'] = 'Убийства'
+  L['loaded'] = 'загружен'
   return
 end
 
@@ -75,6 +80,7 @@ if LOCALE == 'koKR' then
   L['Unknown'] = '알 수 없는'
   L['stats'] = '통계'
   L['Kills'] = '살인'
+  L['loaded'] = '짐을 실은'
   return
 end
 
@@ -84,6 +90,7 @@ if LOCALE == 'zhCN' then
   L['Unknown'] = '未知'
   L['stats'] = '统计'
   L['Kills'] = '杀敌'
+  L['loaded'] = '已加载'
   return
 end
 
@@ -93,5 +100,6 @@ if LOCALE == 'zhTW' then
   L['Unknown'] = '未知'
   L['stats'] = '統計'
   L['Kills'] = '殺敵'
+  L['loaded'] = '已加載'
   return
 end

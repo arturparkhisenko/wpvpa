@@ -2,7 +2,6 @@
 
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local GetAddOnMetadata = GetAddOnMetadata
-local GetBuildInfo = GetBuildInfo
 local WOW_PROJECT_CLASSIC = WOW_PROJECT_CLASSIC
 local WOW_PROJECT_ID = WOW_PROJECT_ID
 
@@ -48,6 +47,7 @@ end
 
 -- @name dump
 -- @param var any
+-- @return var string
 -- @usage UTILS.dump(storage)
 function UTILS:dump(var)
   if type(var) == 'table' then
@@ -88,7 +88,7 @@ end
 -- @name getWinRatePercent
 -- @param played integer
 -- @param won integer
--- @return winrate integer
+-- @return winRatePercent integer
 -- @usage UTILS.getWinRatePercent(187, 102) -- 54
 function UTILS:getWinRatePercent(played, won)
   if played == 0 or won == 0 then
