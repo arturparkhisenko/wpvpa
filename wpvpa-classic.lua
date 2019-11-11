@@ -171,9 +171,6 @@ local function onEvent(self, event, unit, ...)
    then
     updatePVPStats(event)
     render(uiFrame)
-  elseif event == 'ACHIEVEMENT_EARNED' then
-    updateAchievements()
-    render(uiFrame)
   -- elseif event == 'PLAYER_LOGIN' then
   end
 
@@ -195,16 +192,6 @@ local function onEvent(self, event, unit, ...)
     -- Save it
     wpvpa_character_config = storage
   end
-end
-
-local function registerEvents(frame)
-  for _, eventName in pairs(EVENTS) do
-    frame:RegisterEvent(eventName)
-  end
-end
-
-local function setEventListeners(frame)
-  frame:SetScript('OnEvent', onEvent)
 end
 
 -- UI and FRAME -------------------------
@@ -321,6 +308,6 @@ function API_CLASSIC:init(globalStorage, globalUiFrame, globalDebug)
   DEBUG = globalDebug
   uiFrame = initFrame(globalUiFrame)
   initContent(uiFrame)
-  registerEvents(uiFrame)
-  setEventListeners(uiFrame)
+  UTILS:registerEvents(uiFrame, EVENTS)
+  UTILS:setEventListeners(uiFrame, onEvent)
 end

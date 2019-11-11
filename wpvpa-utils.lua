@@ -91,8 +91,26 @@ end
 -- @return winRatePercent integer
 -- @usage UTILS.getWinRatePercent(187, 102) -- 54
 function UTILS:getWinRatePercent(played, won)
-  if played == 0 or won == 0 then
+  if (played == 0 or won == 0) then
     return 0
   end
   return math.floor(won / (played / 100))
+end
+
+-- @name registerEvents
+-- @param frame Frame
+-- @param events table
+-- @usage UTILS.registerEvents(frame, events)
+function UTILS:registerEvents(frame, events)
+  for _, eventName in pairs(events) do
+    frame:RegisterEvent(eventName)
+  end
+end
+
+-- @name setEventListeners
+-- @param frame Frame
+-- @param events table
+-- @usage UTILS.setEventListeners(frame, callback)
+function UTILS:setEventListeners(frame, callback)
+  frame:SetScript('OnEvent', callback)
 end
