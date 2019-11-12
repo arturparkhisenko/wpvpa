@@ -1,3 +1,6 @@
+-- Check --------------------------------
+if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then return end
+
 -- -- UPVALUES -----------------------------
 -- local ARENA_2V2 = ARENA_2V2
 -- local ARENA_3V3 = ARENA_3V3

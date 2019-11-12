@@ -5,6 +5,7 @@ Desktop.ini
 examples
 node_modules
 Thumbs.db
+.release
 
 # Compiled Lua sources
 luac.out

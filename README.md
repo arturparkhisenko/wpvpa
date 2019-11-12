@@ -19,8 +19,9 @@ It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Ba
 
 ## Packaging and publishing
 
-- [How to package and publish](https://www.wowinterface.com/forums/showthread.php?t=55801)
 - [BigWigsMods Packager](https://github.com/BigWigsMods/packager)
+- [How to package and publish](https://www.wowinterface.com/forums/showthread.php?t=55801)
+- [Github workflows example](https://github.com/mooreatv/NeatMinimap/blob/master/.github/workflows/packaging.yaml)
 
 ## Optimizations
 
@@ -72,6 +73,7 @@ It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Ba
 - [addon guide, mmo-champion](https://www.mmo-champion.com/threads/817817-Creating-Your-Own-WoW-Addon)
 - [addon guide, wowhead](https://www.wowhead.com/guide=1949/wow-addon-writing-guide-part-one-how-to-make-your-first-addon)
 - [localization guide, phanx](https://phanx.net/addons/tutorials/localize)
+- [example of classic and retail](https://github.com/jordonwow/omnibar)
 
 ## TODO
 
