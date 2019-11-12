@@ -2,7 +2,7 @@
 
 local ADDON_NAME, namespace = ...
 local COMMAND = '/' .. ADDON_NAME
-local DEBUG = nil
+local DEBUG = true -- true || nil
 
 -- IMPORTS ------------------------------
 
@@ -19,16 +19,17 @@ local uiFrame = nil
 -- COMMANDS -----------------------------
 
 SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
-  UTILS.log(msg)
+  UTILS:log(msg)
   local command = string.lower(msg:match('^(%S*)%s*(.-)$'))
   if (command == 'show') then
     uiFrame:Show()
   elseif (command == 'hide') then
     uiFrame:Hide()
   elseif (command == 'help' or command == '?') then
-    UTILS.printHelp()
+    UTILS:printHelp()
   elseif (command == 'dump') then
-    UTILS.log(UTILS.dump(storage))
+    UTILS:log('storage:')
+    UTILS:log(UTILS:dump(storage))
   end
 end
 SLASH_WPVPA_SLASHCMD1 = COMMAND
@@ -36,11 +37,11 @@ SLASH_WPVPA_SLASHCMD1 = COMMAND
 -- MAIN ---------------------------------
 
 local function onLoad()
-  classic = UTILS.isClassic()
-  UTILS.loadAPI(classic)
-  API.init(storage, uiFrame, DEBUG)
-  UTILS.log('|cffc01300' .. L['loaded'])
-  UTILS.printHelp()
+  classic = UTILS:isClassic()
+  UTILS:loadAPI(classic)
+  API:init(storage, uiFrame, DEBUG)
+  UTILS:log('|cffc01300' .. L['loaded'])
+  UTILS:printHelp()
 end
 
 onLoad()

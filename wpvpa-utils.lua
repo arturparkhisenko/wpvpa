@@ -29,14 +29,14 @@ namespace.API = API
 
 -- @name isClassic
 -- @return classic boolean
--- @usage UTILS.isClassic()
+-- @usage UTILS:isClassic()
 function UTILS:isClassic()
   return WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 end
 
 -- @name log
 -- @param arg
--- @usage UTILS.log('Roses are red...')
+-- @usage UTILS:log('Roses are red...')
 function UTILS:log(...)
   local msg = ''
   for _, part in ipairs {...} do
@@ -48,7 +48,7 @@ end
 -- @name dump
 -- @param var any
 -- @return var string
--- @usage UTILS.dump(storage)
+-- @usage UTILS:dump(storage)
 function UTILS:dump(var)
   if type(var) == 'table' then
     local s = '{ '
@@ -65,7 +65,7 @@ function UTILS:dump(var)
 end
 
 -- @name loadAPI
--- @usage UTILS.loadAPI(classic)
+-- @usage UTILS:loadAPI(classic)
 function UTILS:loadAPI(classic)
   if (classic == true) then
     UTILS:log('Loading API for Classic.')
@@ -77,7 +77,7 @@ function UTILS:loadAPI(classic)
 end
 
 -- @name printHelp
--- @usage UTILS.printHelp()
+-- @usage UTILS:printHelp()
 function UTILS:printHelp()
   UTILS:log('v' .. ADDON_VERSION .. ', commands:')
   UTILS:log(COMMAND .. ' show - show addon frame')
@@ -89,7 +89,7 @@ end
 -- @param played integer
 -- @param won integer
 -- @return winRatePercent integer
--- @usage UTILS.getWinRatePercent(187, 102) -- 54
+-- @usage UTILS:getWinRatePercent(187, 102) -- 54
 function UTILS:getWinRatePercent(played, won)
   if (played == 0 or won == 0) then
     return 0
@@ -100,7 +100,7 @@ end
 -- @name registerEvents
 -- @param frame Frame
 -- @param events table
--- @usage UTILS.registerEvents(frame, events)
+-- @usage UTILS:registerEvents(frame, events)
 function UTILS:registerEvents(frame, events)
   for _, eventName in pairs(events) do
     frame:RegisterEvent(eventName)
@@ -110,7 +110,7 @@ end
 -- @name setEventListeners
 -- @param frame Frame
 -- @param events table
--- @usage UTILS.setEventListeners(frame, callback)
+-- @usage UTILS:setEventListeners(frame, callback)
 function UTILS:setEventListeners(frame, callback)
   frame:SetScript('OnEvent', callback)
 end

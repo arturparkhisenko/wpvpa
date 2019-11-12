@@ -20,10 +20,7 @@ local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
 local RequestInspectHonorData = RequestInspectHonorData
 local UIParent = UIParent
 local UnitClass = UnitClass
-local UnitFactionGroup = UnitFactionGroup
 local UnitHonor = UnitHonor
-local UnitHonorLevel = UnitHonorLevel
-local UnitHonorMax = UnitHonorMax
 local UnitPVPRank = UnitPVPRank
 
 -- CONSTANTS ----------------------------
@@ -62,15 +59,6 @@ local EVENTS = {
   'ADDON_LOADED' -- Fired when saved variables are loaded
 }
 
-local ICON_FACTION = nil
-if (UnitFactionGroup('player') == PLAYER_FACTION_GROUP[0]) then
-  ICON_FACTION = 'Interface\\Icons\\INV_BannerPVP_01'
-else
-  ICON_FACTION = 'Interface\\Icons\\INV_BannerPVP_02'
-end
-
-local ICON_FACTION_CIRCLE = 'Interface\\TargetingFrame\\UI-PVP-' .. PLAYER_FACTION_GROUP[0]
-
 -- STORAGE ------------------------------
 -- -- Per-character settings for each individual AddOn.
 -- -- WTF\Account\ACCOUNTNAME\RealmName\CharacterName\SavedVariables\AddOnName.lua
@@ -79,7 +67,7 @@ local function getStorage(loadedStorage)
   local initialStorage = loadedStorage
   if initialStorage == nil then
     if DEBUG then
-      UTILS.log('new config will be saved.')
+      UTILS:log('new config will be saved.')
     end
     local className, classFile = UnitClass('player')
     initialStorage = {
@@ -87,10 +75,7 @@ local function getStorage(loadedStorage)
         name = GetUnitName('player', false) or L['Unknown'],
         realm = GetRealmName() or L['Unknown'],
         class = classFile,
-        achievements = {},
         honor = UnitHonor('player') or 0,
-        honorMax = UnitHonorMax('player') or 1,
-        honorLevel = UnitHonorLevel('player') or 1,
         kills = GetPVPLifetimeStats() or 0
       }
     }
@@ -102,8 +87,6 @@ end
 
 local function updateHonor(storage)
   storage['player']['honor'] = UnitHonor('player') or 0
-  storage['player']['honorMax'] = UnitHonorMax('player') or 1
-  storage['player']['honorLevel'] = UnitHonorLevel('player') or 1
 end
 
 local function updateKills(storage)
@@ -133,7 +116,7 @@ local function updateRatings(storage)
   end
 
   if (DEBUG) then
-    UTILS.log('rating: ', thisWeekHonor, 'cap: ', lastWeekHonor, standing, rankProgress, rankPoints)
+    UTILS:log('rating: ', thisWeekHonor, 'cap: ', lastWeekHonor, standing, rankProgress, rankPoints)
   end
 
   -- TODO: write to the storage
@@ -145,13 +128,11 @@ end
 local function render(frame)
   frame.killsAmount:SetText(storage['player']['kills'])
   frame.honorAmount:SetText(storage['player']['honor'])
-  frame.honorAmountMax:SetText(storage['player']['honorMax'])
-  frame.honorLevel:SetText(storage['player']['honorLevel'])
 end
 
 local function updatePVPStats(eventName)
   if (DEBUG) then
-    UTILS.log('updatePVPStats triggered by: ', eventName)
+    UTILS:log('updatePVPStats triggered by: ', eventName)
   end
   updateHonor()
   updateKills()
@@ -162,7 +143,7 @@ end
 
 local function onEvent(self, event, unit, ...)
   if (DEBUG) then
-    UTILS.log('onEvent:', event, 'unit:', unit)
+    UTILS:log('onEvent:', event, 'unit:', unit)
   end
 
   if
@@ -186,7 +167,6 @@ local function onEvent(self, event, unit, ...)
     if currentPlayerName ~= storage['player']['name'] then
       storage = getStorage(nil)
     end
-    -- onInit update achievements once
     render(uiFrame)
   end
   if event == 'PLAYER_LOGOUT' then
@@ -197,13 +177,6 @@ end
 
 -- UI and FRAME -------------------------
 
--- TODO: implement settings feature
--- local function initSettings(frame)
---   -- https://wow.gamepedia.com/Using_the_Interface_Options_Addons_panel
---   -- https://wowwiki.fandom.com/wiki/Using_the_Interface_Options_Addons_panel
---   -- https://wowwiki.fandom.com/wiki/Creating_GUI_configuration_options
--- end
-
 -- ofsx (negative values will move obj left, positive values will move obj right), defaults to 0 if not specified.
 -- ofsy (negative values will move obj down, positive values will move obj up), defaults to 0 if not specified.
 local function initContent(frame)
@@ -211,16 +184,6 @@ local function initContent(frame)
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
   frame.Title:SetPoint('TOP', -10, -5)
   frame.Title:SetText(ADDON_NAME .. ' ' .. L['stats'])
-
-  -- Icon Addon Title
-  frame.iconAddonTitle = CreateFrame('Frame')
-  frame.iconAddonTitle.texture = frame.iconAddonTitle:CreateTexture(nil, 'BACKGROUND')
-  frame.iconAddonTitle.texture:SetTexture(ICON_FACTION_CIRCLE)
-  frame.iconAddonTitle.texture:SetAllPoints(frame.iconAddonTitle)
-  frame.iconAddonTitle:SetWidth(30)
-  frame.iconAddonTitle:SetHeight(30)
-  frame.iconAddonTitle:SetParent(frame)
-  frame.iconAddonTitle:SetPoint('TOPLEFT', frame, 10, -3)
 
   -- Kills
   -- -- Kills Amount Title
@@ -234,7 +197,6 @@ local function initContent(frame)
   frame.killsAmount:SetPoint('TOPLEFT', 80, -30)
 
   -- Honor
-
   -- -- Honor Amount Title
   frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameTooltipText')
   frame.honorAmountTitle:SetPoint('TOPLEFT', 12, -50)
@@ -242,19 +204,6 @@ local function initContent(frame)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
   frame.honorAmount:SetPoint('TOPLEFT', 70, -50)
-  -- -- Honor Level Title
-  frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'OVERLAY', 'GameTooltipText')
-  frame.honorLevelTitle:SetPoint('TOPLEFT', 12, -70)
-  frame.honorLevelTitle:SetText(LFG_LIST_HONOR_LEVEL_INSTR_SHORT) -- LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
-  -- -- Honor Level
-  frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
-  frame.honorLevel:SetPoint('TOPLEFT', 110, -70)
-
-  -- WinRates
-
-  -- -- Kill Death Ratio
-  frame.winrateArena2v2 = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
-  frame.winrateArena2v2:SetPoint('TOPLEFT', 85, -90)
 end
 
 local function initFrame(frame)
@@ -264,8 +213,7 @@ local function initFrame(frame)
     return
   end
 
-  -- frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent)
-  frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent, 'BasicFrameTemplateWithInset')
+  frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent)
 
   -- Frame Config
 
