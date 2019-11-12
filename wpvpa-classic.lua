@@ -15,7 +15,6 @@ local GetRealmName = GetRealmName
 local GetUnitName = GetUnitName
 local HONOR_POINTS = HONOR_POINTS
 local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
-local MainMenuBarArtFrame = MainMenuBarArtFrame
 local NotifyInspect = NotifyInspect
 local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
 local RequestInspectHonorData = RequestInspectHonorData
@@ -188,7 +187,6 @@ local function onEvent(self, event, unit, ...)
       storage = getStorage(nil)
     end
     -- onInit update achievements once
-    updateAchievements()
     render(uiFrame)
   end
   if event == 'PLAYER_LOGOUT' then
@@ -261,7 +259,8 @@ end
 
 local function initFrame(frame)
   -- if frame and frame:GetHeight() ~= 0 then -- ~ - not
-  if frame and frame:IsVisible() then -- Get whether the object is visible on screen (logically (IsShown() and GetParent():IsVisible()));
+  -- Get whether the object is visible on screen (logically (IsShown() and GetParent():IsVisible()));
+  if frame and frame:IsVisible() then
     return
   end
 

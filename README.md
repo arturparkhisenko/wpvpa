@@ -67,6 +67,7 @@ It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Ba
 - [ViragDevTool](https://www.curseforge.com/wow/addons/varrendevtool), [ViragDevTool GitHub](https://github.com/varren/ViragDevTool/)
 - [wow-api-docs](https://github.com/Gethe/wow-api-docs) `/api gui`
 - [WowLua](https://www.curseforge.com/wow/addons/wowlua) `/lua print(42)`
+- [.luacheckrc example](https://github.com/WeakAuras/WeakAuras2/blob/master/.luacheckrc)
 
 ### Guides
 
