@@ -12,11 +12,6 @@ local ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, 'Version')
 local COMMAND = '/' .. ADDON_NAME
 local LOG_PREFIX = ADDON_NAME .. ': %s'
 
--- IMPORTS ------------------------------
-
-local API_CLASSIC = namespace.API_CLASSIC
-local API_RETAIL = namespace.API_RETAIL
-
 -- MODULE -------------------------------
 
 local UTILS = {}
@@ -61,18 +56,6 @@ function UTILS:dump(var)
     return s .. '} '
   else
     return tostring(var)
-  end
-end
-
--- @name loadAPI
--- @usage UTILS:loadAPI(classic)
-function UTILS:loadAPI(classic)
-  if (classic == true) then
-    UTILS:log('Loading API for Classic.')
-    API = API_CLASSIC
-  else
-    UTILS:log('Loading API for Retail.')
-    API = API_RETAIL
   end
 end
 

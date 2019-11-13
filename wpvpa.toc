@@ -24,6 +24,7 @@
 ## SavedVariablesPerCharacter: wpvpa_character_config
 
 localization.lua
+wpvpa-utils.lua
 
 #@non-retail@
 wpvpa-classic.lua
@@ -33,5 +34,4 @@ wpvpa-classic.lua
 wpvpa-retail.lua
 #@end-retail@
 
-wpvpa-utils.lua
 wpvpa.lua

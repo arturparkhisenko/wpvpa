@@ -1,7 +1,5 @@
--- Check --------------------------------
-if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
-
 -- UPVALUES -----------------------------
+
 local ClearInspectPlayer = ClearInspectPlayer
 local CreateFrame = CreateFrame
 local GetAchievementInfo = GetAchievementInfo
@@ -33,10 +31,16 @@ local DEBUG = nil
 local L = namespace.L -- Languages Table
 local UTILS = namespace.UTILS
 
+-- VERSION CHECK ------------------------
+
+if UTILS:isClassic() == false then
+  return
+end
+
 -- MODULE -------------------------------
 
-local API_CLASSIC = {}
-namespace.API_CLASSIC = API_CLASSIC
+local API = {}
+namespace.API = API
 
 -- VARIABLES ----------------------------
 
@@ -45,14 +49,13 @@ local uiFrame = nil
 
 -----------------------------------------
 
+-- @see https://git.tukui.org/Tukz/wow-classic/blob/master/Interface/FrameXML/HonorFrame.lua
 -- Events sorted by how often they are triggered
 local EVENTS = {
-  'HONOR_XP_UPDATE',
-  'PVP_RATED_STATS_UPDATE',
-  'HONOR_LEVEL_UPDATE',
+  'PLAYER_PVP_KILLS_CHANGED',
+  'PLAYER_PVP_RANK_CHANGED',
   'UPDATE_BATTLEFIELD_SCORE',
   'PVP_WORLDSTATE_UPDATE',
-  'ZONE_CHANGED_NEW_AREA',
   'PLAYER_ENTERING_WORLD',
   'PLAYER_LOGIN',
   'PLAYER_LOGOUT', -- Fired when about to log out
@@ -75,7 +78,7 @@ local function getStorage(loadedStorage)
         name = GetUnitName('player', false) or L['Unknown'],
         realm = GetRealmName() or L['Unknown'],
         class = classFile,
-        honor = UnitHonor('player') or 0,
+        -- honor = UnitHonor('player') or 0,
         kills = GetPVPLifetimeStats() or 0
       }
     }
@@ -85,13 +88,23 @@ end
 
 -- STORE ACTIONS ------------------------
 
-local function updateHonor(storage)
-  storage['player']['honor'] = UnitHonor('player') or 0
-end
+-- local function updateHonor(storage)
+--   storage['player']['honor'] = UnitHonor('player') or 0
+
+--   if (DEBUG) then
+--     UTILS:log('updateHonor, honor: ', UnitHonor('player'))
+--   end
+-- end
 
 local function updateKills(storage)
-  local honorableKills = GetPVPLifetimeStats()
-  storage['player']['kills'] = honorableKills or 0
+  -- TODO: honorableKills, dishonorableKills, highestRank = GetPVPLifetimeStats()
+  local kills = GetPVPLifetimeStats()
+
+  if (DEBUG) then
+    UTILS:log('updateKills, kills: ', kills)
+  end
+
+  storage['player']['kills'] = kills or 0
 end
 
 local function updateRatings(storage)
@@ -101,7 +114,7 @@ local function updateRatings(storage)
   NotifyInspect(playerUnitId)
   RequestInspectHonorData()
 
-  local _, rank = GetPVPRankInfo(UnitPVPRank(playerUnitId))
+  local rankName, rank = GetPVPRankInfo(UnitPVPRank(playerUnitId))
   local _, _, _, _, thisweekHK, thisWeekHonor, _, lastWeekHonor, standing = GetInspectHonorData()
   local rankProgress = GetInspectPVPRankProgress()
 
@@ -116,7 +129,24 @@ local function updateRatings(storage)
   end
 
   if (DEBUG) then
-    UTILS:log('rating: ', thisWeekHonor, 'cap: ', lastWeekHonor, standing, rankProgress, rankPoints)
+    UTILS:log(
+      'rankName: ',
+      rankName,
+      'rank: ',
+      rank,
+      ', lastWeekHonor: ',
+      lastWeekHonor,
+      ', thisWeekHonor: ',
+      thisWeekHonor,
+      ', standing: ',
+      standing,
+      ', rankProgress: ',
+      rankProgress,
+      ', thisweekHK: ',
+      thisweekHK,
+      ', rankPoints: ',
+      rankPoints
+    )
   end
 
   -- TODO: write to the storage
@@ -134,9 +164,9 @@ local function updatePVPStats(eventName)
   if (DEBUG) then
     UTILS:log('updatePVPStats triggered by: ', eventName)
   end
-  updateHonor()
-  updateKills()
-  updateRatings()
+  -- updateHonor(storage)
+  updateKills(storage)
+  updateRatings(storage)
 end
 
 -- EVENTS -------------------------------
@@ -252,12 +282,40 @@ end
 -- INIT ---------------------------------
 
 -- @name init
--- @usage API_CLASSIC.init(storage, uiFrame, DEBUG)
-function API_CLASSIC:init(globalStorage, globalUiFrame, globalDebug)
-  storage = globalStorage
+-- @usage API:init(DEBUG)
+function API:init(globalDebug)
   DEBUG = globalDebug
-  uiFrame = initFrame(globalUiFrame)
+  uiFrame = initFrame(uiFrame)
   initContent(uiFrame)
   UTILS:registerEvents(uiFrame, EVENTS)
   UTILS:setEventListeners(uiFrame, onEvent)
+
+  if (DEBUG) then
+    UTILS:log('API:init')
+  end
+end
+
+-- @name test
+-- @usage API:test(eventName)
+function API:test(eventName)
+  updatePVPStats(eventName)
+end
+
+-- @name show shows ui frame
+-- @usage API:show()
+function API:show()
+  uiFrame:Show()
+end
+
+-- @name hide hides ui frame
+-- @usage API:hide()
+function API:hide()
+  uiFrame:Hide()
+end
+
+-- @name getStorage
+-- @usage API:getStorage()
+-- @returns storage table
+function API:getStorage()
+  return storage
 end

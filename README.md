@@ -56,6 +56,7 @@ It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Ba
 ### Porting to Classic 1.13.2
 
 - [diff_of_current_classic_vs_live_part_2_framexml](https://www.reddit.com/r/classicwow/comments/bnn2jp/diff_of_current_classic_vs_live_part_2_framexml/)
+- [1.13.2 API_changes](https://wow.gamepedia.com/Patch_1.13.2/API_changes)
 - [World_of_Warcraft_API#Classic_Specific_Functions](https://wow.gamepedia.com/World_of_Warcraft_API#Classic_Specific_Functions)
 - [Porting_addons_to_Classic](https://wow.gamepedia.com/Porting_addons_to_Classic)
 

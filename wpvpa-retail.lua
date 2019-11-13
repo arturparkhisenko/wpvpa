@@ -1,5 +1,18 @@
--- Check --------------------------------
-if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then return end
+-- CONSTANTS ----------------------------
+
+local ADDON_NAME, namespace = ...
+local DEBUG = nil
+
+-- IMPORTS ------------------------------
+
+local L = namespace.L -- Languages Table
+local UTILS = namespace.UTILS
+
+-- VERSION CHECK ------------------------
+
+if UTILS:isClassic() == true then
+  return
+end
 
 -- -- UPVALUES -----------------------------
 -- local ARENA_2V2 = ARENA_2V2
@@ -38,7 +51,6 @@ if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then return end
 -- local L = namespace.L -- Languages Table
 -- local LOG_PREFIX = ADDON_NAME .. ': %s'
 
-
 -- -- Events sorted by how often they are triggered
 -- local EVENTS = {
 --   'HONOR_XP_UPDATE',
@@ -53,7 +65,6 @@ if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then return end
 --   'PLAYER_LOGOUT', -- Fired when about to log out
 --   'ADDON_LOADED' -- Fired when saved variables are loaded
 -- }
-
 
 -- local ICON_PVP_CHALLENGER = 236537
 -- local ICON_PVP_RIVAL = 236538
@@ -75,7 +86,6 @@ if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then return end
 
 -- local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
 -- local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
-
 
 -- -- STORAGE ------------------------------
 -- -- -- Per-character settings for each individual AddOn.
@@ -105,7 +115,6 @@ if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then return end
 --   end
 --   return initialStorage
 -- end
-
 
 -- -- STORE ACTIONS ------------------------
 
@@ -231,7 +240,6 @@ if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then return end
 --   updateKills()
 --   updateRatings()
 -- end
-
 
 -- -- EVENTS -------------------------------
 

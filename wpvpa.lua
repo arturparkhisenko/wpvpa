@@ -10,26 +10,22 @@ local L = namespace.L -- Languages Table
 local UTILS = namespace.UTILS
 local API = namespace.API
 
--- VARIABLES ----------------------------
-
-local classic = nil
-local storage = nil
-local uiFrame = nil
-
 -- COMMANDS -----------------------------
 
 SlashCmdList['WPVPA_SLASHCMD'] = function(msg)
   UTILS:log(msg)
   local command = string.lower(msg:match('^(%S*)%s*(.-)$'))
   if (command == 'show') then
-    uiFrame:Show()
+    API:show()
   elseif (command == 'hide') then
-    uiFrame:Hide()
+    API:hide()
   elseif (command == 'help' or command == '?') then
     UTILS:printHelp()
   elseif (command == 'dump') then
     UTILS:log('storage:')
-    UTILS:log(UTILS:dump(storage))
+    UTILS:log(UTILS:dump(API:getStorage()))
+  elseif (command == 'test') then
+    API:test('test')
   end
 end
 SLASH_WPVPA_SLASHCMD1 = COMMAND
@@ -37,9 +33,7 @@ SLASH_WPVPA_SLASHCMD1 = COMMAND
 -- MAIN ---------------------------------
 
 local function onLoad()
-  classic = UTILS:isClassic()
-  UTILS:loadAPI(classic)
-  API:init(storage, uiFrame, DEBUG)
+  API:init(DEBUG)
   UTILS:log('|cffc01300' .. L['loaded'])
   UTILS:printHelp()
 end
