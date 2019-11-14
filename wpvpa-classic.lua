@@ -111,6 +111,10 @@ local function updateRatings(storage)
   local playerUnitId = 'player'
   local rankPoints = 0
 
+  if (DEBUG) then
+    UTILS:log('updateRatings')
+  end
+
   NotifyInspect(playerUnitId)
   RequestInspectHonorData()
 
@@ -212,28 +216,28 @@ end
 local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
-  frame.Title:SetPoint('TOP', -10, -5)
-  frame.Title:SetText(ADDON_NAME .. ' ' .. L['stats'])
+  frame.Title:SetPoint('TOPLEFT', 2, 12)
+  frame.Title:SetText(ADDON_NAME .. ' ' .. L['stats'] .. ':')
 
   -- Kills
   -- -- Kills Amount Title
   frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameTooltipText')
   -- frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
-  frame.killsAmountTitle:SetPoint('TOPLEFT', 12, -30)
-  frame.killsAmountTitle:SetText(L['Kills']) -- HONORABLE_KILLS = "Honorable Kills";
+  frame.killsAmountTitle:SetPoint('TOPLEFT', 6, -6)
+  frame.killsAmountTitle:SetText(L['Kills'])
   -- -- Kills Amount
   frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
   -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
-  frame.killsAmount:SetPoint('TOPLEFT', 80, -30)
+  frame.killsAmount:SetPoint('TOPLEFT', 36, -6)
 
   -- Honor
   -- -- Honor Amount Title
   frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameTooltipText')
-  frame.honorAmountTitle:SetPoint('TOPLEFT', 12, -50)
+  frame.honorAmountTitle:SetPoint('TOPLEFT', 90, -6)
   frame.honorAmountTitle:SetText(HONOR_POINTS)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmount:SetPoint('TOPLEFT', 70, -50)
+  frame.honorAmount:SetPoint('TOPLEFT', 110, -6)
 end
 
 local function initFrame(frame)
@@ -247,8 +251,8 @@ local function initFrame(frame)
 
   -- Frame Config
 
-  frame:SetWidth(160)
-  frame:SetHeight(150)
+  frame:SetWidth(200)
+  frame:SetHeight(24)
   frame:SetAlpha(0.8)
 
   frame:SetPoint('CENTER', -500, -300)
@@ -263,18 +267,17 @@ local function initFrame(frame)
   frame:SetResizable(false)
   frame:SetUserPlaced(true)
 
-  -- frame:SetBackdrop(
-  --   {
-  --     bgFile = 'Interface/Tooltips/UI-Tooltip-Background',
-  --     edgeFile = 'Interface/Tooltips/UI-Tooltip-Border',
-  --     tile = true,
-  --     tileSize = 16,
-  --     edgeSize = 16,
-  --     insets = {left = 4, right = 4, top = 4, bottom = 4}
-  --   }
-  -- )
-  -- frame:SetBackdropColor(0, 0, 0, .8)
-  -- frame:SetBackdropBorderColor(1, 1, 1, 1)
+  frame:SetBackdrop(
+    {
+      bgFile = 'Interface/Tooltips/UI-Tooltip-Background',
+      edgeFile = 'Interface/Tooltips/UI-Tooltip-Border',
+      tile = true,
+      tileSize = 16,
+      edgeSize = 16,
+      insets = {left = 4, right = 4, top = 4, bottom = 4}
+    }
+  )
+  frame:SetBackdropColor(0, 0, 0, .8)
 
   return frame
 end
