@@ -7,6 +7,7 @@ local GetAddOnMetadata = GetAddOnMetadata
 local GetInspectHonorData = GetInspectHonorData
 local GetInspectPVPRankProgress = GetInspectPVPRankProgress
 local GetPersonalRatedInfo = GetPersonalRatedInfo
+local GetPVPLastWeekStats = GetPVPLastWeekStats
 local GetPVPLifetimeStats = GetPVPLifetimeStats
 local GetPVPRankInfo = GetPVPRankInfo
 local GetRealmName = GetRealmName
@@ -118,38 +119,35 @@ local function updateRatings(storage)
   NotifyInspect(playerUnitId)
   RequestInspectHonorData()
 
-  local rankName, rank = GetPVPRankInfo(UnitPVPRank(playerUnitId))
+  local rankName, rankNumber = GetPVPRankInfo(UnitPVPRank(playerUnitId))
+  local hk, dk, contribution, rankStanding = GetPVPLastWeekStats()
   local _, _, _, _, thisweekHK, thisWeekHonor, _, lastWeekHonor, standing = GetInspectHonorData()
   local rankProgress = GetInspectPVPRankProgress()
 
   ClearInspectPlayer()
 
   if (thisweekHK >= 15) then
-    if (rank >= 3) then
-      rankPoints = math.ceil((rank - 2) * 5000 + rankProgress * 5000)
-    elseif (rank == 2) then
+    if (rankNumber >= 3) then
+      rankPoints = math.ceil((rankNumber - 2) * 5000 + rankProgress * 5000)
+    elseif (rankNumber == 2) then
       rankPoints = math.ceil(rankProgress * 3000 + 2000)
     end
   end
 
   if (DEBUG) then
     UTILS:log(
-      'rankName: ',
-      rankName,
-      'rank: ',
-      rank,
-      ', lastWeekHonor: ',
-      lastWeekHonor,
-      ', thisWeekHonor: ',
-      thisWeekHonor,
-      ', standing: ',
-      standing,
-      ', rankProgress: ',
-      rankProgress,
-      ', thisweekHK: ',
-      thisweekHK,
-      ', rankPoints: ',
-      rankPoints
+      'rankName: ' .. UTILS:dump(rankName),
+      ', rankNumber: '.. UTILS:dump(rankNumber),
+      ', lastWeekHonor: '.. UTILS:dump(lastWeekHonor),
+      ', thisWeekHonor: '.. UTILS:dump(thisWeekHonor),
+      ', standing: '.. UTILS:dump(standing),
+      ', rankProgress: '.. UTILS:dump(rankProgress),
+      ', thisweekHK: '.. UTILS:dump(thisweekHK),
+      ', rankPoints: '.. UTILS:dump(rankPoints),
+      ', hk: '.. UTILS:dump(hk),
+      ', dk: '.. UTILS:dump(dk),
+      ', contribution: '.. UTILS:dump(contribution),
+      ', rankStanding: '.. UTILS:dump(rankStanding)
     )
   end
 
