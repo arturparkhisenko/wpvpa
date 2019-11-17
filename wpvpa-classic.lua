@@ -57,6 +57,7 @@ local EVENTS = {
   'PLAYER_PVP_RANK_CHANGED',
   'UPDATE_BATTLEFIELD_SCORE',
   'PVP_WORLDSTATE_UPDATE',
+  'ZONE_CHANGED_NEW_AREA',
   'PLAYER_ENTERING_WORLD',
   'PLAYER_LOGIN',
   'PLAYER_LOGOUT', -- Fired when about to log out
@@ -137,17 +138,17 @@ local function updateRatings(storage)
   if (DEBUG) then
     UTILS:log(
       'rankName: ' .. UTILS:dump(rankName),
-      ', rankNumber: '.. UTILS:dump(rankNumber),
-      ', lastWeekHonor: '.. UTILS:dump(lastWeekHonor),
-      ', thisWeekHonor: '.. UTILS:dump(thisWeekHonor),
-      ', standing: '.. UTILS:dump(standing),
-      ', rankProgress: '.. UTILS:dump(rankProgress),
-      ', thisweekHK: '.. UTILS:dump(thisweekHK),
-      ', rankPoints: '.. UTILS:dump(rankPoints),
-      ', hk: '.. UTILS:dump(hk),
-      ', dk: '.. UTILS:dump(dk),
-      ', contribution: '.. UTILS:dump(contribution),
-      ', rankStanding: '.. UTILS:dump(rankStanding)
+      ', rankNumber: ' .. UTILS:dump(rankNumber),
+      ', lastWeekHonor: ' .. UTILS:dump(lastWeekHonor),
+      ', thisWeekHonor: ' .. UTILS:dump(thisWeekHonor),
+      ', standing: ' .. UTILS:dump(standing),
+      ', rankProgress: ' .. UTILS:dump(rankProgress),
+      ', thisweekHK: ' .. UTILS:dump(thisweekHK),
+      ', rankPoints: ' .. UTILS:dump(rankPoints),
+      ', hk: ' .. UTILS:dump(hk),
+      ', dk: ' .. UTILS:dump(dk),
+      ', contribution: ' .. UTILS:dump(contribution),
+      ', rankStanding: ' .. UTILS:dump(rankStanding)
     )
   end
 
@@ -158,8 +159,12 @@ end
 -- FUNCTIONS ----------------------------
 
 local function render(frame)
+  if (DEBUG) then
+    UTILS:log('render')
+  end
+
   frame.killsAmount:SetText(storage['player']['kills'])
-  frame.honorAmount:SetText(storage['player']['honor'])
+  -- frame.honorAmount:SetText(storage['player']['honor'])
 end
 
 local function updatePVPStats(eventName)
@@ -179,8 +184,8 @@ local function onEvent(self, event, unit, ...)
   end
 
   if
-    (event == 'HONOR_XP_UPDATE' or event == 'PVP_RATED_STATS_UPDATE' or event == 'HONOR_LEVEL_UPDATE' or
-      event == 'UPDATE_BATTLEFIELD_SCORE' or
+    (event == 'PLAYER_PVP_KILLS_CHANGED' or event == 'PLAYER_PVP_RANK_CHANGED' or event == 'UPDATE_BATTLEFIELD_SCORE' or
+      event == 'PVP_WORLDSTATE_UPDATE' or
       event == 'ZONE_CHANGED_NEW_AREA' or
       event == 'PLAYER_ENTERING_WORLD')
    then
