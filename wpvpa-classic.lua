@@ -1,26 +1,17 @@
 -- UPVALUES -----------------------------
 
-local ClearInspectPlayer = ClearInspectPlayer
 local CreateFrame = CreateFrame
-local GetAchievementInfo = GetAchievementInfo
-local GetAddOnMetadata = GetAddOnMetadata
 local GetInspectHonorData = GetInspectHonorData
 local GetInspectPVPRankProgress = GetInspectPVPRankProgress
-local GetPersonalRatedInfo = GetPersonalRatedInfo
 local GetPVPLastWeekStats = GetPVPLastWeekStats
 local GetPVPLifetimeStats = GetPVPLifetimeStats
 local GetPVPRankInfo = GetPVPRankInfo
+local GetPVPThisWeekStats = GetPVPThisWeekStats
 local GetRealmName = GetRealmName
 local GetUnitName = GetUnitName
 local HONOR_POINTS = HONOR_POINTS
-local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
-local NotifyInspect = NotifyInspect
-local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
-local RequestInspectHonorData = RequestInspectHonorData
 local UIParent = UIParent
 local UnitClass = UnitClass
-local UnitHonor = UnitHonor
-local UnitPVPRank = UnitPVPRank
 
 -- CONSTANTS ----------------------------
 
@@ -90,42 +81,27 @@ end
 
 -- STORE ACTIONS ------------------------
 
--- local function updateHonor(storage)
---   storage['player']['honor'] = UnitHonor('player') or 0
-
---   if (DEBUG) then
---     UTILS:log('updateHonor, honor: ', UnitHonor('player'))
---   end
--- end
-
-local function updateKills(storage)
-  -- TODO: honorableKills, dishonorableKills, highestRank = GetPVPLifetimeStats()
-  local kills = GetPVPLifetimeStats()
-
+local function updateAll(storage)
   if (DEBUG) then
-    UTILS:log('updateKills, kills: ', kills)
+    UTILS:log('updateAll')
   end
-
-  storage['player']['kills'] = kills or 0
 end
 
 local function updateRatings(storage)
-  local playerUnitId = 'player'
-  local rankPoints = 0
-
   if (DEBUG) then
     UTILS:log('updateRatings')
   end
 
-  NotifyInspect(playerUnitId)
-  RequestInspectHonorData()
+  local rankPoints = 0
+  local hk, dk, highestRank = GetPVPLifetimeStats()
+  local rankName, rankNumber = GetPVPRankInfo(highestRank)
 
-  local rankName, rankNumber = GetPVPRankInfo(UnitPVPRank(playerUnitId))
-  local hk, dk, contribution, rankStanding = GetPVPLastWeekStats()
+  -- local rankName, rankNumber = GetPVPRankInfo(UnitPVPRank(playerUnitId))
+  -- local hk, dk, contribution, rankStanding = GetPVPLastWeekStats()
+  local rankStanding = nil
+  local _, contribution = GetPVPThisWeekStats()
   local _, _, _, _, thisweekHK, thisWeekHonor, _, lastWeekHonor, standing = GetInspectHonorData()
   local rankProgress = GetInspectPVPRankProgress()
-
-  ClearInspectPlayer()
 
   if (thisweekHK >= 15) then
     if (rankNumber >= 3) then
@@ -154,6 +130,8 @@ local function updateRatings(storage)
 
   -- TODO: write to the storage
   -- storage['player']['ratings'][bracket] = rating or 0
+  storage['player']['kills'] = hk or 0
+  storage['player']['honor'] = contribution or 0
 end
 
 -- FUNCTIONS ----------------------------
@@ -164,15 +142,13 @@ local function render(frame)
   end
 
   frame.killsAmount:SetText(storage['player']['kills'])
-  -- frame.honorAmount:SetText(storage['player']['honor'])
+  frame.honorAmount:SetText(storage['player']['honor'])
 end
 
 local function updatePVPStats(eventName)
   if (DEBUG) then
     UTILS:log('updatePVPStats triggered by: ', eventName)
   end
-  -- updateHonor(storage)
-  updateKills(storage)
   updateRatings(storage)
 end
 
@@ -191,7 +167,9 @@ local function onEvent(self, event, unit, ...)
    then
     updatePVPStats(event)
     render(uiFrame)
-  -- elseif event == 'PLAYER_LOGIN' then
+  elseif event == 'PLAYER_LOGIN' then
+    updateAll(storage)
+    render(uiFrame)
   end
 
   -- Our saved variables are ready at this point. If there are none, both variables will set to nil.
@@ -220,7 +198,7 @@ local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
   frame.Title:SetPoint('TOPLEFT', 2, 12)
-  frame.Title:SetText(ADDON_NAME .. ' ' .. L['stats'] .. ':')
+  frame.Title:SetText(ADDON_NAME)
 
   -- Kills
   -- -- Kills Amount Title
@@ -236,11 +214,11 @@ local function initContent(frame)
   -- Honor
   -- -- Honor Amount Title
   frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameTooltipText')
-  frame.honorAmountTitle:SetPoint('TOPLEFT', 90, -6)
-  frame.honorAmountTitle:SetText(HONOR_POINTS)
+  frame.honorAmountTitle:SetPoint('TOPLEFT', 80, -6)
+  frame.honorAmountTitle:SetText(HONOR_POINTS .. ' c/w')
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmount:SetPoint('TOPLEFT', 110, -6)
+  frame.honorAmount:SetPoint('TOPLEFT', 150, -6)
 end
 
 local function initFrame(frame)
