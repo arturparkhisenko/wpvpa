@@ -79,6 +79,10 @@ local function getStorage(loadedStorage)
   return initialStorage
 end
 
+local function getPlayer(name)
+  return tostring(storage['player'][name])
+end
+
 -- STORE ACTIONS ------------------------
 
 local function updateAll(storage)
@@ -97,10 +101,10 @@ local function updateRatings(storage)
   local rankName, rankNumber = GetPVPRankInfo(highestRank)
 
   -- local rankName, rankNumber = GetPVPRankInfo(UnitPVPRank(playerUnitId))
-  -- local hk, dk, contribution, rankStanding = GetPVPLastWeekStats()
-  local rankStanding = nil
+  -- local hk, dk, contribution, standing = GetPVPLastWeekStats()
+  local _, _, _, standing = GetPVPLastWeekStats()
   local _, contribution = GetPVPThisWeekStats()
-  local _, _, _, _, thisweekHK, thisWeekHonor, _, lastWeekHonor, standing = GetInspectHonorData()
+  local _, _, _, _, thisweekHK, thisWeekHonor, _, lastWeekHonor = GetInspectHonorData()
   local rankProgress = GetInspectPVPRankProgress()
 
   if (thisweekHK >= 15) then
@@ -123,15 +127,15 @@ local function updateRatings(storage)
       ', rankPoints: ' .. UTILS:dump(rankPoints),
       ', hk: ' .. UTILS:dump(hk),
       ', dk: ' .. UTILS:dump(dk),
-      ', contribution: ' .. UTILS:dump(contribution),
-      ', rankStanding: ' .. UTILS:dump(rankStanding)
+      ', contribution: ' .. UTILS:dump(contribution)
     )
   end
 
-  -- TODO: write to the storage
-  -- storage['player']['ratings'][bracket] = rating or 0
-  storage['player']['kills'] = hk or 0
   storage['player']['honor'] = contribution or 0
+  storage['player']['kills'] = hk or 0
+  storage['player']['rankName'] = rankName or 'None'
+  storage['player']['rankNumber'] = rankNumber or 0
+  storage['player']['standing'] = standing or 0
 end
 
 -- FUNCTIONS ----------------------------
@@ -141,8 +145,14 @@ local function render(frame)
     UTILS:log('render')
   end
 
-  frame.killsAmount:SetText(storage['player']['kills'])
-  frame.honorAmount:SetText(storage['player']['honor'])
+  -- frame.killsAmount:SetText(getPlayer('kills'))
+  -- frame.honorAmount:SetText(getPlayer('honor'))
+  frame.root:SetText(
+    'r' .. getPlayer('rankNumber') .. ' ' .. getPlayer('rankName') ..
+    ', Standing ' .. getPlayer('standing') ..
+    ', '.. L['Kills'] .. ' ' .. getPlayer('kills') ..
+    ', '.. HONOR_POINTS .. ' ' .. getPlayer('honor')
+  )
 end
 
 local function updatePVPStats(eventName)
@@ -197,28 +207,38 @@ end
 local function initContent(frame)
   -- Addon Title
   frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
-  frame.Title:SetPoint('TOPLEFT', 2, 12)
+  frame.Title:SetPoint('TOPLEFT', 2, 10)
   frame.Title:SetText(ADDON_NAME)
+  frame.Title:SetFont('Fonts\\FRIZQT__.TTF', 10)
 
-  -- Kills
-  -- -- Kills Amount Title
-  frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameTooltipText')
-  -- frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
-  frame.killsAmountTitle:SetPoint('TOPLEFT', 6, -6)
-  frame.killsAmountTitle:SetText(L['Kills'])
-  -- -- Kills Amount
-  frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
-  -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
-  frame.killsAmount:SetPoint('TOPLEFT', 36, -6)
+  -- One line output
+  frame.root = frame:CreateFontString('root', 'OVERLAY', 'GameTooltipText')
+  frame.root:SetPoint('TOPLEFT', 6, -6)
 
-  -- Honor
-  -- -- Honor Amount Title
-  frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameTooltipText')
-  frame.honorAmountTitle:SetPoint('TOPLEFT', 80, -6)
-  frame.honorAmountTitle:SetText(HONOR_POINTS .. ' c/w')
-  -- -- Honor Amount
-  frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmount:SetPoint('TOPLEFT', 150, -6)
+  -- Rank
+  -- -- Rank Name Title + Name + Standing
+  -- frame.rank = frame:CreateFontString('rank', 'OVERLAY', 'GameTooltipText')
+  -- frame.rank:SetPoint('TOPLEFT', 6, -6)
+
+  -- -- Kills
+  -- -- -- Kills Amount Title
+  -- frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameTooltipText')
+  -- -- frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
+  -- frame.killsAmountTitle:SetPoint('TOPLEFT', 6, -6)
+  -- frame.killsAmountTitle:SetText(L['Kills'])
+  -- -- -- Kills Amount
+  -- frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
+  -- -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
+  -- frame.killsAmount:SetPoint('TOPLEFT', 36, -6)
+
+  -- -- Honor
+  -- -- -- Honor Amount Title
+  -- frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameTooltipText')
+  -- frame.honorAmountTitle:SetPoint('TOPLEFT', 80, -6)
+  -- frame.honorAmountTitle:SetText(HONOR_POINTS .. ' c/w')
+  -- -- -- Honor Amount
+  -- frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
+  -- frame.honorAmount:SetPoint('TOPLEFT', 150, -6)
 end
 
 local function initFrame(frame)
@@ -231,10 +251,9 @@ local function initFrame(frame)
   frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent)
 
   -- Frame Config
-
-  frame:SetWidth(200)
+  frame:SetWidth(300)
   frame:SetHeight(24)
-  frame:SetAlpha(0.8)
+  frame:SetAlpha(0.7)
 
   frame:SetPoint('CENTER', -500, -300)
 
@@ -258,7 +277,7 @@ local function initFrame(frame)
       insets = {left = 4, right = 4, top = 4, bottom = 4}
     }
   )
-  frame:SetBackdropColor(0, 0, 0, .8)
+  frame:SetBackdropColor(0, 0, 0, .6)
 
   return frame
 end
