@@ -25,7 +25,7 @@ local UTILS = namespace.UTILS
 
 -- VERSION CHECK ------------------------
 
-if UTILS:isClassic() == false then
+if (UTILS:isClassic() == false) then
   return
 end
 
@@ -61,8 +61,8 @@ local EVENTS = {
 
 local function getStorage(loadedStorage)
   local initialStorage = loadedStorage
-  if initialStorage == nil then
-    if DEBUG then
+  if (initialStorage == nil) then
+    if (DEBUG) then
       UTILS:log('new config will be saved.')
     end
     local className, classFile = UnitClass('player')
@@ -185,16 +185,16 @@ local function onEvent(self, event, unit, ...)
   -- Our saved variables are ready at this point. If there are none, both variables will set to nil.
   -- This is the first time this addon is loaded.
   -- arg1 is a file name
-  if event == 'ADDON_LOADED' and unit == ADDON_NAME then
+  if (event == 'ADDON_LOADED' and unit == ADDON_NAME) then
     storage = getStorage(wpvpa_character_config)
     -- check if saved data is from the current player character
     local currentPlayerName = GetUnitName('player', false) or L['Unknown']
-    if currentPlayerName ~= storage['player']['name'] then
+    if (currentPlayerName ~= storage['player']['name']) then
       storage = getStorage(nil)
     end
     render(uiFrame)
   end
-  if event == 'PLAYER_LOGOUT' then
+  if (event == 'PLAYER_LOGOUT') then
     -- Save it
     wpvpa_character_config = storage
   end
@@ -244,7 +244,7 @@ end
 local function initFrame(frame)
   -- if frame and frame:GetHeight() ~= 0 then -- ~ - not
   -- Get whether the object is visible on screen (logically (IsShown() and GetParent():IsVisible()));
-  if frame and frame:IsVisible() then
+  if (frame and frame:IsVisible()) then
     return
   end
 
