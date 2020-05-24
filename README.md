@@ -6,7 +6,7 @@
 
 It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Battlegrounds)
 
-### VSCode plugins
+## VSCode plugins
 
 - [wow-bundle](https://marketplace.visualstudio.com/items?itemName=Septh.wow-bundle)
 - [vscode-lua](https://marketplace.visualstudio.com/items?itemName=trixnz.vscode-lua)
@@ -81,7 +81,7 @@ It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Ba
 
 > Ordered by priority
 
-- Change UI for both, use modular import
+- Change UI for both versions, unified
 - Improve the UI positions for the multi-language support
 - Release a version `0.1.0`
 - Publish on [CurseForge](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file)
