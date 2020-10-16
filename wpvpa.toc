@@ -1,10 +1,6 @@
-#@retail@
-## Interface: 80205
-#@end-retail@
-
-#@non-retail@
-# ## Interface: 11303
-#@end-non-retail@
+## Interface: 11303
+## X-Max-Interface: 90001
+## X-Min-Interface: 11305
 
 ## Version: 0.1.0
 
@@ -14,8 +10,9 @@
 ## Author: Artur Parkhisenko (Rgbtur)
 ## X-License: MIT
 ## X-Website: https://github.com/arturparkhisenko/wpvpa
-## X-Date: 2019-10-19
+## X-Date: 2020-08-24
 ## X-Category: Battlegrounds/PvP
+
 ## X-Curse-Project-ID: 00000
 ## X-WoWI-ID: 00000
 
@@ -25,13 +22,6 @@
 
 localization.lua
 wpvpa-utils.lua
-
-#@non-retail@
 wpvpa-classic.lua
-#@end-non-retail@
-
-#@retail@
 wpvpa-retail.lua
-#@end-retail@
-
 wpvpa.lua

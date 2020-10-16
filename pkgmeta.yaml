@@ -4,6 +4,9 @@ ignore:
   - .editorconfig
   - .gitignore
   - .luacheckrc
+  - CHANGELOG.md
+  - LICENSE.md
+  - README.md
 
 move-folders:
 
