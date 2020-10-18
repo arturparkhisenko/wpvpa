@@ -81,17 +81,9 @@ local ICON_PVP_RIVAL = 236538
 local ICON_PVP_DUELIST = 236539
 local ICON_PVP_GLADIATOR = 236540
 
--- local ICON_HEAL = 'Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:1:20|t'
--- local ICON_DMG = 'Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:15:15:0:0:64:64:20:39:22:41'
 -- local ICON_HONOR = 'Interface\\PVPFrame\\PVP-Currency-' .. UnitFactionGroup('player')
 -- local ICON_CONQUEST = 'Interface\\PVPFrame\\PVPCurrency-Conquest-' .. UnitFactionGroup('player')
 local ICON_BG_TEXTURE = 'Interface\\PVPFrame\\RandomPVPIcon'
--- local ICON_FACTION = nil
--- if (UnitFactionGroup('player') == PLAYER_FACTION_GROUP[0]) then
---   ICON_FACTION = 'Interface\\Icons\\INV_BannerPVP_01'
--- else
---   ICON_FACTION = 'Interface\\Icons\\INV_BannerPVP_02'
--- end
 local ICON_FACTION_CIRCLE = 'Interface\\TargetingFrame\\UI-PVP-' .. PLAYER_FACTION_GROUP[0]
 
 local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
@@ -177,7 +169,7 @@ local function updateRatings()
       )
     end
     storage['player']['ratings'][bracket] = rating or 0
-    storage['player']['winRates'][bracket] = getWinRatePercent(seasonPlayed, seasonWon)
+    storage['player']['winRates'][bracket] = UTILS:getWinRatePercent(seasonPlayed, seasonWon)
   end
 
   -- TODO: Classic part
@@ -315,16 +307,6 @@ local function onEvent(self, event, unit, ...)
     -- Save it
     wpvpa_character_config = storage
   end
-end
-
-local function registerEvents(frame)
-  for _, eventName in pairs(EVENTS) do
-    frame:RegisterEvent(eventName)
-  end
-end
-
-local function setEventListeners(frame)
-  frame:SetScript('OnEvent', onEvent)
 end
 
 -- UI and FRAME -------------------------
