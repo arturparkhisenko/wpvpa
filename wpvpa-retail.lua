@@ -5,6 +5,7 @@ local ClearInspectPlayer = ClearInspectPlayer
 local CreateFrame = CreateFrame
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local FocusFrameSpellBar = FocusFrameSpellBar
+local FROM_RATEDBG = FROM_RATEDBG
 local GetAchievementInfo = GetAchievementInfo
 local GetAddOnMetadata = GetAddOnMetadata
 local GetInspectHonorData = GetInspectHonorData
@@ -145,6 +146,7 @@ local function updateRatings()
   end
 
   for bracketIndex, bracket in pairs(BRACKETS) do
+    -- https://github.com/Gethe/wow-ui-source/blob/ptr/AddOns/Blizzard_PVPUI/Blizzard_PVPUI.lua
     -- https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua
     local rating, seasonBest, weeklyBest, seasonPlayed, seasonWon, weeklyPlayed, weeklyWon, cap =
       GetPersonalRatedInfo(bracketIndex)
@@ -171,34 +173,6 @@ local function updateRatings()
     storage['player']['ratings'][bracket] = rating or 0
     storage['player']['winRates'][bracket] = UTILS:getWinRatePercent(seasonPlayed, seasonWon)
   end
-
-  -- TODO: Classic part
-  local playerUnitId = 'player'
-  local rankPoints = 0
-
-  NotifyInspect(playerUnitId)
-  RequestInspectHonorData()
-
-  local _, rank = GetPVPRankInfo(UnitPVPRank(playerUnitId))
-  local _, _, _, _, thisweekHK, thisWeekHonor, _, lastWeekHonor, standing = GetInspectHonorData()
-  local rankProgress = GetInspectPVPRankProgress()
-
-  ClearInspectPlayer()
-
-  if (thisweekHK >= 15) then
-    if (rank >= 3) then
-      rankPoints = math.ceil((rank - 2) * 5000 + rankProgress * 5000)
-    elseif (rank == 2) then
-      rankPoints = math.ceil(rankProgress * 3000 + 2000)
-    end
-  end
-
-  if (DEBUG) then
-    UTILS:log('rating: ', thisWeekHonor, 'cap: ', lastWeekHonor, standing, rankProgress, rankPoints)
-  end
-
-  -- TODO: write to the storage
-  -- storage['player']['ratings'][bracket] = rating or 0
 end
 
 local function updateAchievements()
@@ -243,17 +217,18 @@ local function render(frame)
 
   frame.killsAmount:SetText(storage['player']['kills'])
 
-  frame.honorAmount:SetText(storage['player']['honor'])
-  frame.honorAmountMax:SetText(storage['player']['honorMax'])
+  frame.honorAmount:SetText(storage['player']['honor'] .. '/' .. storage['player']['honorMax'])
   frame.honorLevel:SetText(storage['player']['honorLevel'])
 
-  frame.ratingsArena2v2Amount:SetText(storage['player']['ratings'][BRACKETS[1]])
-  frame.ratingsArena3v3Amount:SetText(storage['player']['ratings'][BRACKETS[2]])
-  frame.ratingsRBGAmount:SetText(storage['player']['ratings'][BRACKETS[4]])
-
-  frame.winrateArena2v2:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[1]] .. '%')
-  frame.winrateArena3v3:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[2]] .. '%')
-  frame.winrateRBG:SetText('w/r ' .. storage['player']['winRates'][BRACKETS[4]] .. '%')
+  frame.ratingAndWinrateArena2v2:SetText(
+    storage['player']['ratings'][BRACKETS[1]] .. ', w/r ' .. storage['player']['winRates'][BRACKETS[1]] .. '%'
+  )
+  frame.ratingAndWinrateArena3v3:SetText(
+    storage['player']['ratings'][BRACKETS[2]] .. ', w/r ' .. storage['player']['winRates'][BRACKETS[2]] .. '%'
+  )
+  frame.ratingAndWinrateRBG:SetText(
+    storage['player']['ratings'][BRACKETS[4]] .. ', w/r ' .. storage['player']['winRates'][BRACKETS[4]] .. '%'
+  )
 
   renderHighestTitleIcon(frame)
 end
@@ -345,7 +320,7 @@ local function initContent(frame)
   -- -- Kills Amount
   frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
   -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
-  frame.killsAmount:SetPoint('TOPLEFT', 80, -30)
+  frame.killsAmount:SetPoint('TOPRIGHT', -12, -30)
 
   -- Honor
 
@@ -355,32 +330,44 @@ local function initContent(frame)
   frame.honorAmountTitle:SetText(HONOR_POINTS)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmount:SetPoint('TOPLEFT', 70, -50)
+  frame.honorAmount:SetPoint('TOPRIGHT', -12, -50)
   -- -- Honor Level Title
   frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'OVERLAY', 'GameTooltipText')
   frame.honorLevelTitle:SetPoint('TOPLEFT', 12, -70)
   frame.honorLevelTitle:SetText(LFG_LIST_HONOR_LEVEL_INSTR_SHORT) -- LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
   -- -- Honor Level
   frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
-  frame.honorLevel:SetPoint('TOPLEFT', 110, -70)
+  frame.honorLevel:SetPoint('TOPRIGHT', -12, -70)
 
-  -- WinRates
+  -- Rating and Winrate
 
-  -- -- Kill Death Ratio
-  frame.winrateArena2v2 = frame:CreateFontString('ratingsArena2v2Amount', 'OVERLAY', 'GameFontNormal')
-  frame.winrateArena2v2:SetPoint('TOPLEFT', 85, -90)
+  -- -- Titles
+  frame.ratingAndWinrateArena2v2Title = frame:CreateFontString('ratingAndWinrateArena2v2Title', 'OVERLAY', 'GameTooltipText')
+  frame.ratingAndWinrateArena2v2Title:SetPoint('TOPLEFT', 12, -90)
+  frame.ratingAndWinrateArena2v2Title:SetText(ARENA_2V2)
+  frame.ratingAndWinrateArena3v3Title = frame:CreateFontString('ratingAndWinrateArena3v3Title', 'OVERLAY', 'GameTooltipText')
+  frame.ratingAndWinrateArena3v3Title:SetPoint('TOPLEFT', 12, -110)
+  frame.ratingAndWinrateArena3v3Title:SetText(ARENA_3V3)
+  frame.ratingAndWinrateRBGTitle = frame:CreateFontString('ratingAndWinrateRBGTitle', 'OVERLAY', 'GameTooltipText')
+  frame.ratingAndWinrateRBGTitle:SetPoint('TOPLEFT', 12, -130)
+  frame.ratingAndWinrateRBGTitle:SetText(FROM_RATEDBG)
+
+  -- -- Values
+  frame.ratingAndWinrateArena2v2 = frame:CreateFontString('ratingAndWinrateArena2v2', 'OVERLAY', 'GameFontNormal')
+  frame.ratingAndWinrateArena2v2:SetPoint('TOPRIGHT', -12, -90)
+  frame.ratingAndWinrateArena3v3 = frame:CreateFontString('ratingAndWinrateArena3v3', 'OVERLAY', 'GameFontNormal')
+  frame.ratingAndWinrateArena3v3:SetPoint('TOPRIGHT', -12, -110)
+  frame.ratingAndWinrateRBG = frame:CreateFontString('ratingAndWinrateRBG', 'OVERLAY', 'GameFontNormal')
+  frame.ratingAndWinrateRBG:SetPoint('TOPRIGHT', -12, -130)
 end
 
 local function initFrame(frame)
-  -- if frame and frame:GetHeight() ~= 0 then -- ~ - not
-  if frame and frame:IsVisible() then -- Get whether the object is visible on screen (logically (IsShown() and GetParent():IsVisible()));
+  if frame and frame:IsVisible() then
     return
   end
 
   -- frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent)
   frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent, 'BasicFrameTemplateWithInset')
-
-  -- Frame Config
 
   frame:SetWidth(160)
   frame:SetHeight(150)

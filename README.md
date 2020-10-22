@@ -37,6 +37,7 @@ It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Ba
 ## URLs
 
 - [Blizzard_APIDocumentation](https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentation)
+- [Blizzard_APIDocumentation GitHub](https://github.com/Gethe/wow-ui-source/tree/ptr/AddOns/Blizzard_APIDocumentation)
 - [lua files ptr](https://www.townlong-yak.com/framexml/ptr), example [Blizzard_PVPUI.lua](https://www.townlong-yak.com/framexml/ptr/Blizzard_PVPUI/Blizzard_PVPUI.lua)
 - [FontStyles](https://www.townlong-yak.com/framexml/29701/SharedFontStyles.xml)
 - [Gethe/wow-api-docs](https://github.com/Gethe/wow-api-docs)
