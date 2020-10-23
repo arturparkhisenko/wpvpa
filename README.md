@@ -2,9 +2,15 @@
 
 > World of Warcraft (Retail and Classic) AddOn showing PVP stats
 
-![UI-preview](screenshot.png)
-
 It shows Kills, Honor, Honor Level, PVP Standings (Classic or Arena and Rated Battlegrounds)
+
+Classic:
+
+![UI-preview-classic](screenshot-classic.png)
+
+Retail:
+
+![UI-preview-retail](screenshot-retail.png)
 
 ## VSCode plugins
 

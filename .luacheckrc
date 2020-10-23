@@ -39,6 +39,7 @@ globals = {
   'STANDARD_TEXT_FONT',
   -- API functions
   'CreateFrame',
+  'GetAchievementInfo',
   'GetAddOnMetadata',
   'GetInspectHonorData',
   'GetInspectPVPRankProgress',
@@ -51,6 +52,9 @@ globals = {
   'GetRealmName',
   'GetUnitName',
   'UnitClass',
+  'UnitHonor',
+  'UnitHonorLevel',
+  'UnitHonorMax',
   -- framexml functions
   -- Constants.lua
   'PLAYER_FACTION_GROUP',

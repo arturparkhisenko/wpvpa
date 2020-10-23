@@ -242,8 +242,6 @@ local function initContent(frame)
 end
 
 local function initFrame(frame)
-  -- if frame and frame:GetHeight() ~= 0 then -- ~ - not
-  -- Get whether the object is visible on screen (logically (IsShown() and GetParent():IsVisible()));
   if (frame and frame:IsVisible()) then
     return
   end

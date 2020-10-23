@@ -1,28 +1,19 @@
 -- UPVALUES -----------------------------
 local ARENA_2V2 = ARENA_2V2
 local ARENA_3V3 = ARENA_3V3
-local ClearInspectPlayer = ClearInspectPlayer
 local CreateFrame = CreateFrame
-local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
-local FocusFrameSpellBar = FocusFrameSpellBar
-local FROM_RATEDBG = FROM_RATEDBG
 local GetAchievementInfo = GetAchievementInfo
 local GetAddOnMetadata = GetAddOnMetadata
-local GetInspectHonorData = GetInspectHonorData
-local GetInspectPVPRankProgress = GetInspectPVPRankProgress
 local GetPersonalRatedInfo = GetPersonalRatedInfo
 local GetPVPLifetimeStats = GetPVPLifetimeStats
 local GetRealmName = GetRealmName
 local GetUnitName = GetUnitName
 local HONOR_POINTS = HONOR_POINTS
 local LFG_LIST_HONOR_LEVEL_INSTR_SHORT = LFG_LIST_HONOR_LEVEL_INSTR_SHORT
-local MainMenuBarArtFrame = MainMenuBarArtFrame
-local NotifyInspect = NotifyInspect
 local PLAYER_FACTION_GROUP = PLAYER_FACTION_GROUP
-local RequestInspectHonorData = RequestInspectHonorData
 local UIParent = UIParent
 local UnitClass = UnitClass
--- local UnitFactionGroup = UnitFactionGroup
+local UnitFactionGroup = UnitFactionGroup
 local UnitHonor = UnitHonor
 local UnitHonorLevel = UnitHonorLevel
 local UnitHonorMax = UnitHonorMax
@@ -82,12 +73,18 @@ local ICON_PVP_RIVAL = 236538
 local ICON_PVP_DUELIST = 236539
 local ICON_PVP_GLADIATOR = 236540
 
--- local ICON_HONOR = 'Interface\\PVPFrame\\PVP-Currency-' .. UnitFactionGroup('player')
--- local ICON_CONQUEST = 'Interface\\PVPFrame\\PVPCurrency-Conquest-' .. UnitFactionGroup('player')
+local ICON_HONOR = 'Interface\\PVPFrame\\PVP-Currency-' .. UnitFactionGroup('player')
+local ICON_CONQUEST = 'Interface\\PVPFrame\\PVPCurrency-Conquest-' .. UnitFactionGroup('player')
 local ICON_BG_TEXTURE = 'Interface\\PVPFrame\\RandomPVPIcon'
 local ICON_FACTION_CIRCLE = 'Interface\\TargetingFrame\\UI-PVP-' .. PLAYER_FACTION_GROUP[0]
 
 local ACHIEVEMENTS = {[2090] = 'Challenger', [2093] = 'Rival', [2092] = 'Duelist', [2091] = 'Gladiator'}
+local ACHIEVEMENT_ICONS = {
+  [2090] = ICON_PVP_CHALLENGER,
+  [2093] = ICON_PVP_RIVAL,
+  [2092] = ICON_PVP_DUELIST,
+  [2091] = ICON_PVP_GLADIATOR
+}
 local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
 
 -- STORAGE ------------------------------
@@ -187,7 +184,7 @@ local function updateAchievements()
       UTILS:log('id: ', id, 'name: ', name, 'completed: ', completed or 'false')
     end
     if completed then
-      storage['player']['achievements'][name] = true
+      storage['player']['achievements'][id] = true
     end
   end
 end
@@ -199,14 +196,10 @@ local function renderHighestTitleIcon(frame)
     UTILS:log('renderHighestTitleIcon')
   end
 
-  if (storage['player']['achievements']['Challenger'] == true) then
-    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_CHALLENGER)
-  elseif (storage['player']['achievements']['Rival'] == true) then
-    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_RIVAL)
-  elseif (storage['player']['achievements']['Duelist'] == true) then
-    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_DUELIST)
-  elseif (storage['player']['achievements']['Gladiator'] == true) then
-    frame.iconHighestTitle.texture:SetTexture(ICON_PVP_GLADIATOR)
+  for id, name in pairs(ACHIEVEMENTS) do
+    if (storage['player']['achievements'][id] == true) then
+      frame.iconHighestTitle.texture:SetTexture(ACHIEVEMENT_ICONS[id])
+    end
   end
 end
 
@@ -297,68 +290,79 @@ end
 -- ofsy (negative values will move obj down, positive values will move obj up), defaults to 0 if not specified.
 local function initContent(frame)
   -- Addon Title
-  frame.Title = frame:CreateFontString(ADDON_NAME .. 'Title', 'OVERLAY', 'GameFontNormal')
-  frame.Title:SetPoint('TOP', -10, -5)
-  frame.Title:SetText(ADDON_NAME .. ' ' .. L['stats'])
+  frame.Title = frame:CreateFontString('Title', 'OVERLAY', 'GameFontNormal')
+  frame.Title:SetPoint('TOP', 0, -3)
+  frame.Title:SetText(ADDON_NAME)
+
+  frame.subTitle = frame:CreateFontString('subTitle', 'OVERLAY', 'GameTooltipText')
+  frame.subTitle:SetPoint('TOP', 0, -18)
+  frame.subTitle:SetText(L['stats'])
 
   -- Icon Addon Title
   frame.iconAddonTitle = CreateFrame('Frame')
   frame.iconAddonTitle.texture = frame.iconAddonTitle:CreateTexture(nil, 'BACKGROUND')
   frame.iconAddonTitle.texture:SetTexture(ICON_FACTION_CIRCLE)
   frame.iconAddonTitle.texture:SetAllPoints(frame.iconAddonTitle)
-  frame.iconAddonTitle:SetWidth(30)
-  frame.iconAddonTitle:SetHeight(30)
+  frame.iconAddonTitle:SetWidth(50)
+  frame.iconAddonTitle:SetHeight(50)
   frame.iconAddonTitle:SetParent(frame)
-  frame.iconAddonTitle:SetPoint('TOPLEFT', frame, 10, -3)
+  frame.iconAddonTitle:SetPoint('TOPLEFT', frame, 2, -3)
+
+  -- Icon PVP Title
+  frame.iconHighestTitle = CreateFrame('Frame')
+  frame.iconHighestTitle.texture = frame.iconHighestTitle:CreateTexture(nil, 'BACKGROUND')
+  frame.iconHighestTitle.texture:SetAllPoints(frame.iconHighestTitle)
+  frame.iconHighestTitle:SetWidth(30)
+  frame.iconHighestTitle:SetHeight(30)
+  frame.iconHighestTitle:SetParent(frame)
+  frame.iconHighestTitle:SetPoint('TOPRIGHT', frame, -3, -3)
 
   -- Kills
   -- -- Kills Amount Title
   frame.killsAmountTitle = frame:CreateFontString('killsAmountTitle', 'OVERLAY', 'GameTooltipText')
-  -- frame.killsAmountTitle:SetFont('Fonts\\FRIZQT__.TTF', 20)
-  frame.killsAmountTitle:SetPoint('TOPLEFT', 12, -30)
-  frame.killsAmountTitle:SetText(L['Kills']) -- HONORABLE_KILLS = "Honorable Kills";
+  frame.killsAmountTitle:SetPoint('TOPLEFT', 10, -35)
+  frame.killsAmountTitle:SetText(L['Kills'])
   -- -- Kills Amount
   frame.killsAmount = frame:CreateFontString('killsAmount', 'OVERLAY', 'GameFontNormal')
   -- frame.killsAmount:SetTextColor(0, 0, 0, 1) -- SetTextColor(r, g, b[, a]) - Sets the default text color.
-  frame.killsAmount:SetPoint('TOPRIGHT', -12, -30)
+  frame.killsAmount:SetPoint('TOPRIGHT', -10, -35)
 
   -- Honor
-
   -- -- Honor Amount Title
   frame.honorAmountTitle = frame:CreateFontString('honorAmountTitle', 'OVERLAY', 'GameTooltipText')
-  frame.honorAmountTitle:SetPoint('TOPLEFT', 12, -50)
+  frame.honorAmountTitle:SetPoint('TOPLEFT', 10, -50)
   frame.honorAmountTitle:SetText(HONOR_POINTS)
   -- -- Honor Amount
   frame.honorAmount = frame:CreateFontString('honorAmount', 'OVERLAY', 'GameFontNormal')
-  frame.honorAmount:SetPoint('TOPRIGHT', -12, -50)
+  frame.honorAmount:SetPoint('TOPRIGHT', -10, -50)
   -- -- Honor Level Title
   frame.honorLevelTitle = frame:CreateFontString('honorLevelTitle', 'OVERLAY', 'GameTooltipText')
-  frame.honorLevelTitle:SetPoint('TOPLEFT', 12, -70)
+  frame.honorLevelTitle:SetPoint('TOPLEFT', 10, -65)
   frame.honorLevelTitle:SetText(LFG_LIST_HONOR_LEVEL_INSTR_SHORT) -- LFG_LIST_HONOR_LEVEL_INSTR_SHORT = "Honor Level";
   -- -- Honor Level
   frame.honorLevel = frame:CreateFontString('honorLevel', 'OVERLAY', 'GameFontNormal')
-  frame.honorLevel:SetPoint('TOPRIGHT', -12, -70)
+  frame.honorLevel:SetPoint('TOPRIGHT', -10, -65)
 
   -- Rating and Winrate
-
   -- -- Titles
-  frame.ratingAndWinrateArena2v2Title = frame:CreateFontString('ratingAndWinrateArena2v2Title', 'OVERLAY', 'GameTooltipText')
-  frame.ratingAndWinrateArena2v2Title:SetPoint('TOPLEFT', 12, -90)
+  frame.ratingAndWinrateArena2v2Title =
+    frame:CreateFontString('ratingAndWinrateArena2v2Title', 'OVERLAY', 'GameTooltipText')
+  frame.ratingAndWinrateArena2v2Title:SetPoint('TOPLEFT', 10, -80)
   frame.ratingAndWinrateArena2v2Title:SetText(ARENA_2V2)
-  frame.ratingAndWinrateArena3v3Title = frame:CreateFontString('ratingAndWinrateArena3v3Title', 'OVERLAY', 'GameTooltipText')
-  frame.ratingAndWinrateArena3v3Title:SetPoint('TOPLEFT', 12, -110)
+  frame.ratingAndWinrateArena3v3Title =
+  frame:CreateFontString('ratingAndWinrateArena3v3Title', 'OVERLAY', 'GameTooltipText')
+  frame.ratingAndWinrateArena3v3Title:SetPoint('TOPLEFT', 10, -95)
   frame.ratingAndWinrateArena3v3Title:SetText(ARENA_3V3)
   frame.ratingAndWinrateRBGTitle = frame:CreateFontString('ratingAndWinrateRBGTitle', 'OVERLAY', 'GameTooltipText')
-  frame.ratingAndWinrateRBGTitle:SetPoint('TOPLEFT', 12, -130)
-  frame.ratingAndWinrateRBGTitle:SetText(FROM_RATEDBG)
-
+  frame.ratingAndWinrateRBGTitle:SetPoint('TOPLEFT', 10, -110)
+  frame.ratingAndWinrateRBGTitle:SetText(L['RBG'])
   -- -- Values
   frame.ratingAndWinrateArena2v2 = frame:CreateFontString('ratingAndWinrateArena2v2', 'OVERLAY', 'GameFontNormal')
-  frame.ratingAndWinrateArena2v2:SetPoint('TOPRIGHT', -12, -90)
+  frame.ratingAndWinrateArena2v2:SetPoint('TOPRIGHT', -10, -80)
   frame.ratingAndWinrateArena3v3 = frame:CreateFontString('ratingAndWinrateArena3v3', 'OVERLAY', 'GameFontNormal')
-  frame.ratingAndWinrateArena3v3:SetPoint('TOPRIGHT', -12, -110)
+  frame.ratingAndWinrateArena3v3:SetPoint('TOPRIGHT', -10, -95)
   frame.ratingAndWinrateRBG = frame:CreateFontString('ratingAndWinrateRBG', 'OVERLAY', 'GameFontNormal')
-  frame.ratingAndWinrateRBG:SetPoint('TOPRIGHT', -12, -130)
+  frame.ratingAndWinrateRBG:SetPoint('TOPRIGHT', -10, -110)
 end
 
 local function initFrame(frame)
@@ -367,11 +371,12 @@ local function initFrame(frame)
   end
 
   -- frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent)
-  frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent, 'BasicFrameTemplateWithInset')
+  frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent, 'BackdropTemplate')
+  -- frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent, 'BasicFrameTemplateWithInset')
 
   frame:SetWidth(160)
-  frame:SetHeight(150)
-  frame:SetAlpha(0.8)
+  frame:SetHeight(130)
+  frame:SetAlpha(1)
 
   frame:SetPoint('CENTER', -500, -300)
 
@@ -385,18 +390,18 @@ local function initFrame(frame)
   frame:SetResizable(false)
   frame:SetUserPlaced(true)
 
-  -- frame:SetBackdrop(
-  --   {
-  --     bgFile = 'Interface/Tooltips/UI-Tooltip-Background',
-  --     edgeFile = 'Interface/Tooltips/UI-Tooltip-Border',
-  --     tile = true,
-  --     tileSize = 16,
-  --     edgeSize = 16,
-  --     insets = {left = 4, right = 4, top = 4, bottom = 4}
-  --   }
-  -- )
-  -- frame:SetBackdropColor(0, 0, 0, .8)
-  -- frame:SetBackdropBorderColor(1, 1, 1, 1)
+  frame:SetBackdrop(
+    {
+      bgFile = 'Interface/Tooltips/UI-Tooltip-Background',
+      edgeFile = 'Interface/Tooltips/UI-Tooltip-Border',
+      tile = true,
+      tileSize = 16,
+      edgeSize = 16,
+      insets = {left = 4, right = 4, top = 4, bottom = 4}
+    }
+  )
+  frame:SetBackdropColor(0, 0, 0, .6)
+  frame:SetBackdropBorderColor(1, 1, 1, 1)
 
   return frame
 end
