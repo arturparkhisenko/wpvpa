@@ -1,20 +1,21 @@
-## Interface: 11303
-## X-Max-Interface: 90001
-## X-Min-Interface: 11305
+## Interface: 90200
+## X-Min-Interface: 11402
+## Interface-Classic: 11402
+## Interface-BCC: 20503
 
 ## Version: 0.1.0
 
 ## Title: |cffc41f3bwpvpa |cff61b219|r[v0.1.0]
 ## Notes: PVP stats (Beta)
 
-## Author: Artur Parkhisenko (Rgbtur)
+## Author: Rgbtur
 ## X-License: MIT
-## X-Website: https://github.com/arturparkhisenko/wpvpa
 ## X-Date: 2020-08-24
 ## X-Category: Battlegrounds/PvP
 
 ## X-Curse-Project-ID: 00000
 ## X-WoWI-ID: 00000
+## X-Wago-ID: 00000
 
 ## LoadOnDemand: 0
 ## DefaultState: enabled
