@@ -1,6 +1,8 @@
 -- UPVALUES -----------------------------
 local ARENA_2V2 = ARENA_2V2
 local ARENA_3V3 = ARENA_3V3
+local BATTLEGROUND_10V10 = BATTLEGROUND_10V10
+local RATED_SOLO_SHUFFLE_SIZE = RATED_SOLO_SHUFFLE_SIZE
 local CreateFrame = CreateFrame
 local GetAchievementInfo = GetAchievementInfo
 local GetAddOnMetadata = GetAddOnMetadata
@@ -85,7 +87,7 @@ local ACHIEVEMENT_ICONS = {
   [2092] = ICON_PVP_DUELIST,
   [2091] = ICON_PVP_GLADIATOR
 }
-local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10'}
+local BRACKETS = {[1] = 'ARENA_2V2', [2] = 'ARENA_3V3', [4] = 'BATTLEGROUND_10V10', [7] = 'RATED_SOLO_SHUFFLE_SIZE'}
 
 -- STORAGE ------------------------------
 -- -- Per-character settings for each individual AddOn.
@@ -108,8 +110,8 @@ local function getStorage(loadedStorage)
         honorMax = UnitHonorMax('player') or 1,
         honorLevel = UnitHonorLevel('player') or 1,
         kills = GetPVPLifetimeStats() or 0,
-        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0},
-        winRates = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0}
+        ratings = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0, [BRACKETS[7]] = 0},
+        winRates = {[BRACKETS[1]] = 0, [BRACKETS[2]] = 0, [BRACKETS[4]] = 0, [BRACKETS[7]] = 0}
       }
     }
   end
@@ -213,6 +215,9 @@ local function render(frame)
   frame.honorAmount:SetText(storage['player']['honor'] .. '/' .. storage['player']['honorMax'])
   frame.honorLevel:SetText(storage['player']['honorLevel'])
 
+  frame.ratingAndWinrateArenaSolo:SetText(
+    storage['player']['ratings'][BRACKETS[7]] .. ', w/r ' .. storage['player']['winRates'][BRACKETS[7]] .. '%'
+  )
   frame.ratingAndWinrateArena2v2:SetText(
     storage['player']['ratings'][BRACKETS[1]] .. ', w/r ' .. storage['player']['winRates'][BRACKETS[1]] .. '%'
   )
@@ -345,24 +350,30 @@ local function initContent(frame)
 
   -- Rating and Winrate
   -- -- Titles
+  frame.ratingAndWinrateArenaSoloTitle =
+    frame:CreateFontString('ratingAndWinrateArenaSoloTitle', 'OVERLAY', 'GameTooltipText')
+  frame.ratingAndWinrateArenaSoloTitle:SetPoint('TOPLEFT', 10, -80)
+  frame.ratingAndWinrateArenaSoloTitle:SetText(RATED_SOLO_SHUFFLE_SIZE)
   frame.ratingAndWinrateArena2v2Title =
     frame:CreateFontString('ratingAndWinrateArena2v2Title', 'OVERLAY', 'GameTooltipText')
-  frame.ratingAndWinrateArena2v2Title:SetPoint('TOPLEFT', 10, -80)
+  frame.ratingAndWinrateArena2v2Title:SetPoint('TOPLEFT', 10, -95)
   frame.ratingAndWinrateArena2v2Title:SetText(ARENA_2V2)
   frame.ratingAndWinrateArena3v3Title =
   frame:CreateFontString('ratingAndWinrateArena3v3Title', 'OVERLAY', 'GameTooltipText')
-  frame.ratingAndWinrateArena3v3Title:SetPoint('TOPLEFT', 10, -95)
+  frame.ratingAndWinrateArena3v3Title:SetPoint('TOPLEFT', 10, -110)
   frame.ratingAndWinrateArena3v3Title:SetText(ARENA_3V3)
   frame.ratingAndWinrateRBGTitle = frame:CreateFontString('ratingAndWinrateRBGTitle', 'OVERLAY', 'GameTooltipText')
-  frame.ratingAndWinrateRBGTitle:SetPoint('TOPLEFT', 10, -110)
-  frame.ratingAndWinrateRBGTitle:SetText(L['RBG'])
+  frame.ratingAndWinrateRBGTitle:SetPoint('TOPLEFT', 10, -125)
+  frame.ratingAndWinrateRBGTitle:SetText(BATTLEGROUND_10V10)
   -- -- Values
+  frame.ratingAndWinrateArenaSolo = frame:CreateFontString('ratingAndWinrateArenaSolo', 'OVERLAY', 'GameFontNormal')
+  frame.ratingAndWinrateArenaSolo:SetPoint('TOPRIGHT', -10, -80)
   frame.ratingAndWinrateArena2v2 = frame:CreateFontString('ratingAndWinrateArena2v2', 'OVERLAY', 'GameFontNormal')
-  frame.ratingAndWinrateArena2v2:SetPoint('TOPRIGHT', -10, -80)
+  frame.ratingAndWinrateArena2v2:SetPoint('TOPRIGHT', -10, -95)
   frame.ratingAndWinrateArena3v3 = frame:CreateFontString('ratingAndWinrateArena3v3', 'OVERLAY', 'GameFontNormal')
-  frame.ratingAndWinrateArena3v3:SetPoint('TOPRIGHT', -10, -95)
+  frame.ratingAndWinrateArena3v3:SetPoint('TOPRIGHT', -10, -110)
   frame.ratingAndWinrateRBG = frame:CreateFontString('ratingAndWinrateRBG', 'OVERLAY', 'GameFontNormal')
-  frame.ratingAndWinrateRBG:SetPoint('TOPRIGHT', -10, -110)
+  frame.ratingAndWinrateRBG:SetPoint('TOPRIGHT', -10, -125)
 end
 
 local function initFrame(frame)
@@ -375,7 +386,7 @@ local function initFrame(frame)
   -- frame = CreateFrame('Frame', ADDON_NAME .. 'EventFrame', UIParent, 'BasicFrameTemplateWithInset')
 
   frame:SetWidth(160)
-  frame:SetHeight(130)
+  frame:SetHeight(140)
   frame:SetAlpha(1)
 
   frame:SetPoint('CENTER', -500, -300)

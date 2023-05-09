@@ -29,7 +29,6 @@ if LOCALE == 'deDE' then
   L['loaded'] = 'geladen'
   L['stats'] = 'Statistiken'
   L['Unknown'] = 'Unbekannte'
-  L['RBG'] = 'BS'
   return
 end
 
@@ -40,7 +39,6 @@ if LOCALE == 'frFR' then
   L['loaded'] = 'chargé'
   L['stats'] = 'Statistiques'
   L['Unknown'] = 'Inconnu'
-  L['RBG'] = 'CDBC'
   return
 end
 
@@ -51,7 +49,6 @@ if LOCALE == 'esES' or LOCALE == 'esMX' then
   L['loaded'] = 'cargado'
   L['stats'] = 'Estadísticas'
   L['Unknown'] = 'Desconocido'
-  L['RBG'] = 'CDBC'
   return
 end
 
@@ -64,7 +61,6 @@ if LOCALE == 'ptBR' then
   L['loaded'] = 'carregado'
   L['stats'] = 'Estatísticas'
   L['Unknown'] = 'Desconhecido'
-  L['RBG'] = 'CDBA'
   return
 end
 
@@ -75,7 +71,6 @@ if LOCALE == 'ruRU' then
   L['loaded'] = 'загружен'
   L['stats'] = 'Статистика'
   L['Unknown'] = 'Неизвестно'
-  L['RBG'] = 'РБГ'
   return
 end
 
@@ -86,7 +81,6 @@ if LOCALE == 'koKR' then
   L['loaded'] = '짐을 실은'
   L['stats'] = '통계'
   L['Unknown'] = '알 수 없는'
-  L['RBG'] = '정격 전장'
   return
 end
 
@@ -97,7 +91,6 @@ if LOCALE == 'zhCN' then
   L['loaded'] = '已加载'
   L['stats'] = '统计'
   L['Unknown'] = '未知'
-  L['RBG'] = '额定战场'
   return
 end
 
@@ -108,6 +101,5 @@ if LOCALE == 'zhTW' then
   L['loaded'] = '已加載'
   L['stats'] = '統計'
   L['Unknown'] = '未知'
-  L['RBG'] = '額定戰場'
   return
 end

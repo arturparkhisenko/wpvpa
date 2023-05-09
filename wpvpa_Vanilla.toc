@@ -1,4 +1,4 @@
-## Interface: 100100
+## Interface: 11403
 ## Title: wpvpa |cFF61B219v0.1.0|r
 ## Notes: PVP stats (Beta)
 ## Author: Rgbtur
